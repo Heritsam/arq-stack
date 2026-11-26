@@ -124,7 +124,6 @@ Playbooks are step lists inside `/arq-mode`, not skills, so they have no slash c
 - "land the stack" runs Shipping.
 - "take over this branch" runs Session pickup.
 - "pause safely" runs Pause safely.
-- "full autopilot on this queue" runs Autopilot-full. "autopilot, don't merge" runs Autopilot-stack.
 - "run the eval playbook" runs Eval.
 
 The Playbooks section of [`arq-mode`](../arq-mode/SKILL.md) lists every playbook. [Guide page 6](https://github.com/cursor/plugins/blob/main/pstack/docs/guide/06-verify-and-ship.md) covers opening, babysitting, and landing a PR.
