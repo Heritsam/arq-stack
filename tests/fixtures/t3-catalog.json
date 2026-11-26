@@ -50,7 +50,9 @@
           "id": "claude-fable-5-1",
           "options": [{ "id": "effort", "type": "select", "options": [{ "id": "low" }, { "id": "medium" }, { "id": "high" }, { "id": "xhigh" }, { "id": "max" }] }]
         },
-        { "id": "claude-haiku-4-5", "options": [{ "id": "thinking", "type": "boolean" }] }
+        { "id": "claude-haiku-4-5", "options": [{ "id": "thinking", "type": "boolean" }] },
+        { "id": "claude-sonnet-5-5", "options": [{ "id": "effort", "values": ["low", "medium", "high", "xhigh", "max"] }] },
+        { "id": "claude-haiku-5-5", "options": [{ "id": "effort", "values": ["low", "medium", "high", "xhigh", "max"] }] }
       ],
       "canRunChildTask": true,
       "canRunCrossProviderChildTask": true,
@@ -69,6 +71,18 @@
     },
     {
       "providerInstanceId": "cursor",
+      "driverKind": "cursor",
+      "models": [
+        { "id": "grok-4.7", "options": [{ "id": "reasoning_effort", "values": ["low", "medium", "high", "xhigh"] }, { "id": "fastMode", "type": "boolean" }] },
+        { "id": "grok-4.6", "options": [{ "id": "effort", "values": ["low", "medium", "high", "xhigh"] }, { "id": "fastMode", "type": "boolean" }] },
+        { "id": "composer-2.5", "options": [{ "id": "fastMode", "type": "boolean" }] }
+      ],
+      "canRunChildTask": true,
+      "canRunCrossProviderChildTask": true,
+      "constraints": []
+    },
+    {
+      "providerInstanceId": "cursor_signed_out",
       "driverKind": "cursor",
       "models": [{ "id": "grok-4.7", "options": [] }],
       "canRunChildTask": false,

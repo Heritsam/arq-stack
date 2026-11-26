@@ -33,7 +33,7 @@ describe("parseModels", () => {
   };
   const role = (policy, label) => policy.roles.find((r) => r.role === label);
 
-  test.each(["default", "fast", "panel"])("a missing %s tier throws naming it", (tier) => {
+  test.each(["default", "search", "panel"])("a missing %s tier throws naming it", (tier) => {
     expect(parse((p) => delete p.tiers[tier])).toThrow(`models.json: tiers has no "${tier}"`);
   });
 
@@ -41,8 +41,8 @@ describe("parseModels", () => {
     expect(parse((p) => (p.tiers.default = "opus"))).toThrow(
       'models.json: tier "default": "opus" does not start with <providerInstanceId>/<modelId>',
     );
-    expect(parse((p) => (p.tiers.fast = "inherit-parent"))).toThrow(
-      'models.json: tier "fast" must name a target, not inherit the parent',
+    expect(parse((p) => (p.tiers.default = "inherit-parent"))).toThrow(
+      'models.json: tier "default" must name a target, not inherit the parent',
     );
     expect(parse((p) => (p.tiers.default = "claudeAgent/claude-opus-5-5  effort=xhigh"))).toThrow(
       "is not one entry written with single spaces",
@@ -66,7 +66,7 @@ describe("parseModels", () => {
   });
 
   test("a duplicate role label or alias throws naming it", () => {
-    expect(parse((p) => p.roles.push({ ...role(p, "routine work") }))).toThrow('models.json: role "routine work" appears twice');
+    expect(parse((p) => p.roles.push({ ...role(p, "search") }))).toThrow('models.json: role "search" appears twice');
     expect(parse((p) => (role(p, "bug-fix").alias = "hillclimb"))).toThrow(
       'models.json: role "hillclimb" appears twice',
     );
@@ -79,14 +79,14 @@ describe("parseModels", () => {
   });
 
   test("a retired label that is still a role throws, so a live line is never skipped", () => {
-    expect(parse((p) => p.retired.push("routine work"))).toThrow('models.json: "routine work" is both a role and retired');
+    expect(parse((p) => p.retired.push("search"))).toThrow('models.json: "search" is both a role and retired');
     expect(parse((p) => delete p.retired)).toThrow('models.json: "retired" must be a list');
   });
 });
 
 describe("role labels reach the prose", () => {
-  // The prose may hyphenate a label ("routine-work" for the sheet's
-  // "routine work") and names only the first segment of a comma-joined label.
+  // The prose may hyphenate a label ("search" for the sheet's
+  // "search") and names only the first segment of a comma-joined label.
   const normalize = (text) => text.toLowerCase().replace(/[-\s]+/g, " ");
 
   function skillProse(skill) {

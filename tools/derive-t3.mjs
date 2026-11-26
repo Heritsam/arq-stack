@@ -91,9 +91,8 @@ export function sheetBlock(models) {
   const rows = models.roles.map((r) => `${r.role}: ${entries(models, r).join(", ")}`);
   return [
     "# pstack model configuration (T3). One line per role. Delete a line to fall back to the skill default.",
-    "# `inherit-parent` or `auto` as a value: the role runs on the parent chat's model (`delegate_task` omits `target`). Alias entries in a panel list still count toward its fan-out.",
+    "# `inherit-parent` or `auto` as a value: the role runs on the parent chat's model (`delegate_task` omits `target`). A list is a pool: one subagent takes the first entry that fits.",
     "# defaults: 3",
-    "# budget: large (xhigh)",
     ...rows,
     "session hook: on",
   ];

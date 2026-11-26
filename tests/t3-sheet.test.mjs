@@ -95,19 +95,19 @@ describe("checkSheet against a catalog", () => {
     expect(
       check(
         [
-          "bug-fix: claudeCode/claude-opus-5-5",
-          "perf-issue: cursor/grok-4.7",
+          "interrogate reviewers: claudeCode/claude-opus-5-5, claudeAgent/claude-opus-5-5, codex/gpt-6.1-sol",
+          "perf-issue: cursor_signed_out/grok-4.7",
           "judgment and prose: grok/grok-9",
-          "routine work: claudeAgent/claude-opus-5-5 reasoningEffort=high",
+          "bug-fix: claudeAgent/claude-opus-5-5 reasoningEffort=high",
           "feature, refactoring: codex/gpt-6.1-sol reasoningEffort=extreme",
           "hillclimb: claudeAgent/claude-opus-5-5 fastMode=yes",
         ].join("\n"),
       ),
     ).toEqual([
-      'bug-fix: claudeCode/claude-opus-5-5: no provider instance "claudeCode" in this T3',
-      'perf-issue: cursor/grok-4.7: "cursor" cannot run child tasks (Provider is not authenticated.)',
+      'interrogate reviewers: claudeCode/claude-opus-5-5: no provider instance "claudeCode" in this T3',
+      'perf-issue: cursor_signed_out/grok-4.7: "cursor_signed_out" cannot run child tasks (Provider is not authenticated.)',
       'judgment and prose: grok/grok-9: "grok" does not list model "grok-9"',
-      'routine work: claudeAgent/claude-opus-5-5: no option "reasoningEffort" (has effort, fastMode)',
+      'bug-fix: claudeAgent/claude-opus-5-5: no option "reasoningEffort" (has effort, fastMode)',
       "feature, refactoring: codex/gpt-6.1-sol: reasoningEffort=extreme is not one of low, medium, high, xhigh, max, ultra",
       "hillclimb: claudeAgent/claude-opus-5-5: fastMode=yes is not one of true, false",
     ]);
@@ -115,12 +115,11 @@ describe("checkSheet against a catalog", () => {
 
   test("a catalog that lists each option's values as a plain array, as orchestrator_capabilities returns, checks values", () => {
     // A copy of a live orchestrator_capabilities result, trimmed to four
-    // providers. It lists no Fable 5.2 and no antigravity instance, so only the
-    // tier defaults that name those fail; the Opus defaults pass.
+    // providers, plus the models the tier defaults name. It has no antigravity
+    // instance, so only the default that names it fails.
     const values = JSON.parse(readFileSync(join(root, "tests/fixtures/t3-catalog-values.json"), "utf8"));
     const problems = (lines) => check(lines.join("\n"), values);
     const missingDefault = (p) =>
-      p.includes('(no line, tier default): claudeAgent/claude-fable-5-2: "claudeAgent" does not list model "claude-fable-5-2"') ||
       p.includes('(no line, tier default): antigravity/gemini-4-neon: no provider instance "antigravity" in this T3');
     const valid = [
       "bug-fix: claudeAgent/claude-opus-5-5 effort=high fastMode=true",
@@ -154,13 +153,13 @@ describe("checkSheet against a catalog", () => {
   test("a role with no line is checked on its tier default, as on a machine without Antigravity", () => {
     const noGemini = structuredClone(catalog);
     noGemini.providers = noGemini.providers.filter((p) => p.providerInstanceId !== "antigravity");
-    const panelRoles = roles.filter((r) => Array.isArray(defaults[r.tier])).map((r) => r.role);
+    const geminiRoles = roles.filter((r) => [defaults[r.tier]].flat().some((e) => e.startsWith("antigravity/"))).map((r) => r.role);
     expect(check("session hook: on", noGemini)).toEqual(
-      panelRoles.map(
+      geminiRoles.map(
         (role) => `${role} (no line, tier default): antigravity/gemini-4-neon: no provider instance "antigravity" in this T3`,
       ),
     );
-    const lines = panelRoles.map((role) => `${role}: claudeAgent/claude-opus-5-5, codex/gpt-6.1-sol`).join("\n");
+    const lines = geminiRoles.map((role) => `${role}: claudeAgent/claude-opus-5-5, codex/gpt-6.1-sol`).join("\n");
     expect(check(lines, noGemini)).toEqual([]);
   });
 
@@ -205,9 +204,9 @@ describe("checkSheet against a catalog", () => {
   });
 
   test("a role set twice fails rather than letting the last line win", () => {
-    expect(check("routine work: grok/grok-4.7 effort=high\nroutine work: grok/grok-4.7")).toEqual([
-      'routine work: grok/grok-4.7: no option "effort" (has reasoningEffort)',
-      '"routine work" appears twice; only one line may set it',
+    expect(check("bug-fix: grok/grok-4.7 effort=high\nbug-fix: grok/grok-4.7")).toEqual([
+      'bug-fix: grok/grok-4.7: no option "effort" (has reasoningEffort)',
+      '"bug-fix" appears twice; only one line may set it',
     ]);
   });
 

@@ -1,6 +1,6 @@
 ---
 name: setup-arq-stack
-description: Configure which T3 provider and model pstack uses per role and at what reasoning budget. Detects the models T3 can run and writes the model sheet that overrides the skill defaults. Use for /setup-arq-stack, "configure pstack models", "pstack budget", or changing pstack's model choices.
+description: Configure which T3 provider and model pstack uses per role and at what reasoning level. Detects the models T3 can run and writes the model sheet that overrides the skill defaults. Use for /setup-arq-stack, "configure pstack models", "pstack budget", or changing pstack's model choices.
 ---
 
 # Setup pstack
@@ -15,42 +15,37 @@ Call `orchestrator_capabilities`, or `acp-mcp-call orchestrator_capabilities '{}
 
 ### 2. Load current state
 
-The default role-to-target mapping is the sheet shape in step 5 below. If the sheet already exists, read it and treat its `# budget` line and its role values as the current choices. If it does not, read `arq-stack-models.md` in the host's config directory (`$CLAUDE_CONFIG_DIR` or `~/.claude` on Claude Code, `$CODEX_HOME` or `~/.codex` on Codex) the same way. Otherwise start from those defaults. Drop every line whose role is not in step 5, and any value that is not a T3 entry, such as a bare family name, a `claude-` slug, or an `@<level>` suffix, and a `default effort` line. Tell the user which lines you dropped.
+The default role-to-target mapping is the sheet shape in step 5 below. If the sheet already exists, read it and treat its role values as the current choices. If it does not, read `arq-stack-models.md` in the host's config directory (`$CLAUDE_CONFIG_DIR` or `~/.claude` on Claude Code, `$CODEX_HOME` or `~/.codex` on Codex) the same way. Otherwise start from those defaults. Drop every line whose role is not in step 5, and any value that is not a T3 entry, such as a bare family name, a `claude-` slug, or an `@<level>` suffix, and a `default effort` line. Tell the user which lines you dropped.
 
-### 3. Budget, map, and confirm
+### 3. Map and confirm
 
-**(a) Ask for a budget.** Ask a structured multiple-choice question (`AskUserQuestion` on Claude Code, numbered options in plain text elsewhere). Offer these three options with these exact labels, and name the current budget when the sheet records one. With no sheet, say that `large` matches the skill defaults.
+**(a) Build the table** from the defaults, and on a re-run keep any role you changed. Replace a default this machine cannot run with the closest detected target. No entry goes above `high`. Write `fastMode=false` for every model whose `fastMode` defaults to on.
 
-- `large - xhigh reasoning`
-- `medium - high reasoning`
-- `small - medium reasoning`
+**(b) Show the roles and confirm.** Show every role with its entry, and list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected targets at `high` or below plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat's model).
 
-**(b) Apply it.** Build the working table from the defaults, and on a re-run keep any role you changed by provider, family, list, or alias (`inherit-parent`, `auto`). A model's family is defined in (c), so Fable is its own family. Each role has a target effort, which is its default's effort moved by the budget. `large` keeps it, `medium` lowers it one step, and `small` lowers it two steps, on the ladder `xhigh` > `high` > `medium` > `low`. No role runs above `xhigh`, and a target at the bottom of the ladder stays there. Most defaults are at `xhigh`, and each budget label names where those land. Set the reasoning option of every entry in the role, panel entries included, to the role's target, using the option ID that provider lists. If the provider does not offer that value, use its highest value at or below the target, else mark the role as needing a choice. `inherit-parent` and `auto` do not change. So `medium` turns `effort=xhigh` into `effort=high` and `effort=high` into `effort=medium`, and `small` turns them into `effort=medium` and `effort=low`. Opus 5.5 runs at standard speed, so never write `fastMode`, which on T3 is a priced fast mode. Claude lists no `fastMode` for Fable 5.2, and no provider lists a speed option for a Gemini model, so never write one. Gemini 4 Neon's reasoning levels run from `low` to `xhigh` with no `max`, so its seat runs at `xhigh`, its top level. A Gemini 4 Neon entry in a panel role takes its own target, `xhigh` moved by the budget, so `large` keeps `thought_level=xhigh` on Antigravity, `medium` writes `thought_level=high`, and `small` writes `thought_level=medium`.
+`search` and `interrogate reviewers` are pools, written as lists in order of preference. One subagent runs, on the first entry that fits, so a longer list does not run more subagents. Each pool needs at least two model families among its targets. A model's family is the first segment of its ID's last `/` part, such as `claude`, `grok`, or `gemini`, except that Fable (`claude-fable-*`) is its own family. The reviewer is from a family other than the one that wrote the code. A listed level is the normal one, and arq-mode raises it to `high` for complex work.
 
-**(c) Show the roles and confirm.** Show every role with its entry, marking any target not in the detected set as needing a choice. Also list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected targets at `xhigh` or below plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat's model) as the options. For the panel role (`interrogate reviewers`) the value is a list, and one subagent runs per entry, alias entries included, up to arq-mode's limit of two. The list needs at least two model families among its targets. A model's family is the first segment of its ID's last `/` part, such as `claude`, `gpt`, or `gemini`, except that Fable (`claude-fable-*`) is its own family. `routine work` is the target for mechanical edits and delegated verification.
-
-**(d) Ask about the session-start hook.** Ask whether arq-stack's session-start hook should keep telling new chats when to enter `/arq-mode`. Write `session hook: on` or `session hook: off`.
+**(c) Ask about the session-start hook.** Ask whether arq-stack's session-start hook should keep telling new chats when to enter `/arq-mode`. Write `session hook: on` or `session hook: off`.
 
 ### 4. Validate
 
-Write the candidate to a temp file. Call `orchestrator_capabilities` again and save its result to a temp file as `{"providers": [...]}`, copying verbatim the entry of every provider instance the candidate or the defaults name. Its list is short, so add to each provider's `models` every model the candidate or the defaults name that it omits, as `search` with that model's ID returns it. Run `node <plugin root>/skills/setup-arq-stack/scripts/t3-sheet.mjs <candidate> <catalog.json>`, where `<plugin root>` is the directory that holds this plugin's `skills/`, and fix every line it prints. Every entry's reasoning option must be at `xhigh` or below. If `node` is missing, check each entry against the catalog by reading, and say so. A role with no line runs on its default, so add a line for any role whose default this machine cannot run.
+Write the candidate to a temp file. Call `orchestrator_capabilities` again and save its result to a temp file as `{"providers": [...]}`, copying verbatim the entry of every provider instance the candidate or the defaults name. Its list is short, so add to each provider's `models` every model the candidate or the defaults name that it omits, as `search` with that model's ID returns it. Run `node <plugin root>/skills/setup-arq-stack/scripts/t3-sheet.mjs <candidate> <catalog.json>`, where `<plugin root>` is the directory that holds this plugin's `skills/`, and fix every line it prints. Every entry's reasoning option must be at `high` or below. If `node` is missing, check each entry against the catalog by reading, and say so. A role with no line runs on its default, so add a line for any role whose default this machine cannot run.
 
 ### 5. Write the sheet
 
-Overwrite the sheet with the candidate, creating its directory and writing through any symlink at its path (resolve it with `realpath`). The candidate carries the `# defaults: 3` line and a `# budget` line with the chosen label and the effort that label names. If a different file is already there, run the checker on it and ask before you replace it. Overwrite the whole file so re-runs stay idempotent. Then replace `arq-stack-models.md` in the host's config directory with a link to the sheet (`ln -sf`), so an older arq-stack reads the same sheet. Step 2 already read what it held. On Codex, remove any pstack model rows an earlier setup pasted into `<codex-home>/AGENTS.md`. With every default kept, the sheet reads:
+Overwrite the sheet with the candidate, creating its directory and writing through any symlink at its path (resolve it with `realpath`). The candidate carries the `# defaults: 3` line. If a different file is already there, run the checker on it and ask before you replace it. Overwrite the whole file so re-runs stay idempotent. Then replace `arq-stack-models.md` in the host's config directory with a link to the sheet (`ln -sf`), so an older arq-stack reads the same sheet. Step 2 already read what it held. On Codex, remove any pstack model rows an earlier setup pasted into `<codex-home>/AGENTS.md`. With every default kept, the sheet reads:
 
 ```markdown
 # pstack model configuration (T3). One line per role. Delete a line to fall back to the skill default.
-# `inherit-parent` or `auto` as a value: the role runs on the parent chat's model (`delegate_task` omits `target`). Alias entries in a panel list still count toward its fan-out.
+# `inherit-parent` or `auto` as a value: the role runs on the parent chat's model (`delegate_task` omits `target`). A list is a pool: one subagent takes the first entry that fits.
 # defaults: 3
-# budget: large (xhigh)
-feature, refactoring: claudeAgent/claude-opus-5-5 effort=xhigh
-bug-fix: claudeAgent/claude-opus-5-5 effort=xhigh
-perf-issue: claudeAgent/claude-opus-5-5 effort=xhigh
-hillclimb: claudeAgent/claude-opus-5-5 effort=xhigh
-judgment and prose: claudeAgent/claude-opus-5-5 effort=xhigh
-routine work: claudeAgent/claude-opus-5-5 effort=high
-interrogate reviewers: claudeAgent/claude-opus-5-5 effort=high, antigravity/gemini-4-neon thought_level=xhigh
+feature, refactoring: claudeAgent/claude-sonnet-5-5 effort=medium
+bug-fix: claudeAgent/claude-sonnet-5-5 effort=medium
+perf-issue: claudeAgent/claude-sonnet-5-5 effort=medium
+hillclimb: claudeAgent/claude-sonnet-5-5 effort=medium
+judgment and prose: claudeAgent/claude-sonnet-5-5 effort=medium
+search: cursor/composer-2.5 fastMode=false, claudeAgent/claude-haiku-5-5 effort=high
+interrogate reviewers: cursor/grok-4.7 reasoning_effort=medium fastMode=false, cursor/grok-4.6 effort=medium fastMode=false, antigravity/gemini-4-neon thought_level=medium, claudeAgent/claude-sonnet-5-5 effort=medium
 session hook: on
 ```
 

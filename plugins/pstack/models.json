@@ -1,10 +1,15 @@
 {
   "tiers": {
-    "default": "claudeAgent/claude-opus-5-5 effort=xhigh",
-    "fast": "claudeAgent/claude-opus-5-5 effort=high",
+    "default": "claudeAgent/claude-sonnet-5-5 effort=medium",
+    "search": [
+      "cursor/composer-2.5 fastMode=false",
+      "claudeAgent/claude-haiku-5-5 effort=high"
+    ],
     "panel": [
-      "claudeAgent/claude-opus-5-5 effort=high",
-      "antigravity/gemini-4-neon thought_level=xhigh"
+      "cursor/grok-4.7 reasoning_effort=medium fastMode=false",
+      "cursor/grok-4.6 effort=medium fastMode=false",
+      "antigravity/gemini-4-neon thought_level=medium",
+      "claudeAgent/claude-sonnet-5-5 effort=medium"
     ]
   },
   "roles": [
@@ -13,10 +18,11 @@
     { "role": "perf-issue", "tier": "default", "skill": "arq-mode" },
     { "role": "hillclimb", "tier": "default", "skill": "arq-mode" },
     { "role": "judgment and prose", "tier": "default", "skill": "arq-mode" },
-    { "role": "routine work", "tier": "fast", "skill": "arq-mode" },
+    { "role": "search", "tier": "search", "skill": "arq-mode" },
     { "role": "interrogate reviewers", "tier": "panel", "skill": "interrogate" }
   ],
   "retired": [
+    "routine work",
     "arena runners",
     "arena cross-judge pool",
     "swarm workers",

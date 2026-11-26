@@ -70,7 +70,7 @@ describe("regions", () => {
   test("every skill a role names gets that role's tier default stamped in its Models section", () => {
     const marked = {
       ...models,
-      tiers: { default: "x/marker-default", fast: "x/marker-fast", panel: ["a/claude-p", "b/gpt-p"] },
+      tiers: { default: "x/marker-default", search: ["x/claude-s", "y/composer-s"], panel: ["a/claude-p", "b/gpt-p"] },
     };
     for (const skill of new Set(models.roles.map((r) => r.skill))) {
       const file = `plugins/pstack/skills/${skill}/SKILL.md`;
@@ -78,7 +78,7 @@ describe("regions", () => {
       for (const role of models.roles.filter((r) => r.skill === skill)) {
         const expected = {
           default: "`x/marker-default`",
-          fast: "`x/marker-fast`",
+          search: "`x/claude-s`, `y/composer-s`",
           panel: "`a/claude-p`, `b/gpt-p`",
         }[role.tier];
         expect(stamped).toContain(`- ${role.role}: ${expected}`);
@@ -92,7 +92,7 @@ describe("regions", () => {
     const once = applyRegions(file, text, models, { strict: true });
     expect(once).not.toContain("stale");
     expect(once).toContain("## After\nkeep\n");
-    expect(once).toContain("- interrogate reviewers: `claudeAgent/claude-opus-5-5 effort=high`");
+    expect(once).toContain(`- interrogate reviewers: ${models.tiers.panel.map((e) => `\`${e}\``).join(", ")}`);
     expect(applyRegions(file, once, models, { strict: true })).toBe(once);
   });
 
@@ -267,7 +267,7 @@ describe("deriveT3", () => {
     expect(out).toContain("body\n\n## Models\n\nRole defaults on T3, stamped from `plugins/pstack/models.json`.");
     expect(out).toContain("`arq-stack-models.md`");
     expect(out).toContain("It splits at its first `/`");
-    expect(out.endsWith("- interrogate reviewers: `claudeAgent/claude-opus-5-5 effort=high`, `antigravity/gemini-4-neon thought_level=xhigh`\n")).toBe(true);
+    expect(out.endsWith(`- interrogate reviewers: ${models.tiers.panel.map((e) => `\`${e}\``).join(", ")}\n`)).toBe(true);
     expect(deriveT3("plugins/pstack/skills/interrogate/SKILL.md", out, models)).toBe(out);
   });
 

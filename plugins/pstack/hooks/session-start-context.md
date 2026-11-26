@@ -11,7 +11,7 @@ It routes to the right pstack skill from there. On Codex, open its SKILL.md whol
 
 When the intent is already specific, such as TDD, a design sketch, how or why something works, or an adversarial review, still enter through `arq-stack:arq-mode` and open that skill from the bundled path it names. The other pstack skills run only from arq-mode or when the user types them.
 
-This runs on T3: before the first subagent or panel in a session, read the model sheet, `~/.config/arq-stack/models.md` (`$XDG_CONFIG_HOME/arq-stack/models.md` when that is set), or `arq-stack-models.md` in this host's config directory when that file is missing. This chat runs the playbook itself. A step it says to delegate goes through `delegate_task` to that role's sheet entry, and the reply lists which provider and model ran each step. A `delegate_task` child is a leaf instead. It does the work itself and starts no subagent unless its brief names one.
+This runs on T3: before the first subagent or panel in a session, read the model sheet, `~/.config/arq-stack/models.md` (`$XDG_CONFIG_HOME/arq-stack/models.md` when that is set), or `arq-stack-models.md` in this host's config directory when that file is missing. This chat runs the playbook and writes the code itself, with at most two subagents per task. Each goes through `delegate_task` to its sheet line, and the reply lists which provider and model ran it. A `delegate_task` child is a leaf instead. It does the work itself and starts no subagent.
 
 User instructions (CLAUDE.md, AGENTS.md, direct requests) take precedence. Other session-start mandates, such as superpowers, still apply. Their skill checks run as before, and when a task meets the criteria above they route implementation through arq-mode.
 </EXTREMELY_IMPORTANT>

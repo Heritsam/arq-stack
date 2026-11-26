@@ -208,9 +208,9 @@ export function validatePluginLayout(pluginRoot) {
   }
 }
 
-const TIERS = ["default", "fast", "panel"];
-// The tiers whose default is a list: the review panel.
-const LIST_TIERS = ["panel"];
+const TIERS = ["default", "search", "panel"];
+// The tiers whose default is a list: the search and reviewer pools.
+const LIST_TIERS = ["search", "panel"];
 
 // Check models.json's shape, throwing with the offending tier, role, or entry
 // named. `skillExists(skill)` reports whether a role's skill directory carries

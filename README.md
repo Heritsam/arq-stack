@@ -2,7 +2,7 @@
 
 A private, lower-cost fork of [t3-pstack](https://github.com/chhoumann/t3-pstack) 2.7.1 for [T3 Code](https://github.com/pingdotgg/t3code). Tell `arq-mode` your goal and it picks the workflow.
 
-It drops t3-pstack's many-agent skills and limits each task to two subagents, never nested. Model and effort defaults are still t3-pstack's, so they come next.
+It drops t3-pstack's many-agent skills and limits each task to two subagents, never nested. The main chat writes the code. A reviewer comes from another model family, searches run on a small model, and no default goes above `high`.
 
 ## Install
 
@@ -12,7 +12,7 @@ npx -y github:Heritsam/arq-stack update
 npx -y github:Heritsam/arq-stack doctor
 ```
 
-To run this release's installer, use `npx -y github:Heritsam/arq-stack#v3.1.0 doctor`. The repository is private, so git needs access to it.
+To run this release's installer, use `npx -y github:Heritsam/arq-stack#v3.2.0 doctor`. The repository is private, so git needs access to it.
 
 Then run `/arq-stack:setup-arq-stack` in a T3 thread. It writes the model sheet, `~/.config/arq-stack/models.md`. Without a sheet, every role runs on the defaults in its skill.
 

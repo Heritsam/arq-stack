@@ -28,7 +28,7 @@ Check the state that changes the answer, and mention it only when it does:
 - No `verify-*` skill or other app harness in the project means agents have no scripted way to drive the app. Mention `/create-verification-skill` when the question is about proving a change works.
 - No formal verification skill in the project means no property is checked past what tests reach. Mention `/create-formal-verification-skill` when the question is about a race, an invariant, or another case tests rarely hit. When one exists and the code it covers changed after the commit it records as last in sync, mention `/maintain-formal-verification-skill` if the question touches that code.
 
-When the model sheet is missing and it matters, ask whether the user wants to pick a model for each role and a reasoning budget now. It matters when the user is new, the question is about setup or cost, or the answer depends on which models run. Ask at most once per chat. If the need is also unclear, ask both questions together. Offer two choices:
+When the model sheet is missing and it matters, ask whether the user wants to pick a model for each role now. It matters when the user is new, the question is about setup or cost, or the answer depends on which models run. Ask at most once per chat. If the need is also unclear, ask both questions together. Offer two choices:
 
 - Now: give them `/setup-arq-stack` to type, and answer their question too.
 - Later: answer their question, and add one line saying every role keeps its default model until they run `/setup-arq-stack`.
@@ -36,12 +36,12 @@ When the model sheet is missing and it matters, ask whether the user wants to pi
 ## Get set up
 
 1. Install arq-stack per its [README](https://github.com/Heritsam/arq-stack#readme). One `npx -y github:Heritsam/arq-stack install` run installs it in every home T3 can run.
-2. Run [`/setup-arq-stack`](../setup-arq-stack/SKILL.md). It asks for a reasoning budget, maps a T3 provider and model to each role, and writes the model sheet. The sheet applies to new chats. Then it offers once each to generate a verification skill and a formal verification skill for the project, unless the project already has one.
+2. Run [`/setup-arq-stack`](../setup-arq-stack/SKILL.md). It maps a T3 provider and model to each role, and writes the model sheet. The sheet applies to new chats. Then it offers once each to generate a verification skill and a formal verification skill for the project, unless the project already has one.
 3. Start a real task with `/arq-mode`, a goal, and a check that can pass or fail.
 
 Installing changes nothing until the user invokes a skill. Only `/setup-arq-stack` loads from the user's words. The [README](https://github.com/Heritsam/arq-stack/blob/main/README.md) and [guide page 1](https://github.com/cursor/plugins/blob/main/pstack/docs/guide/01-setup.md) have the details. Offer to word their first prompt with them, per [`references/prompting.md`](references/prompting.md).
 
-If cost is the worry, say where the tokens go and how to spend fewer. pstack spends extra tokens on subagents and review panels. Rerun `/setup-arq-stack` and pick a smaller budget or cheaper models. A role set to `auto` or `inherit-parent` runs on the chat's model, which saves tokens when the chat runs on a cheaper model. A shorter panel list runs fewer subagents, one for each entry. Save `/arq-mode` for work that needs rigor.
+If cost is the worry, say where the tokens go and how to spend fewer. arq-stack spends extra tokens on subagents, at most two per task. Rerun `/setup-arq-stack` and pick cheaper models or lower levels. Save `/arq-mode` for work that needs rigor.
 
 arq-stack is pstack rewritten for T3 Code, and `npx -y github:Heritsam/arq-stack install` installs it in every home T3 can run.
 
@@ -91,7 +91,7 @@ The default answer is `/arq-mode`, which runs most of the others when its steps 
 | Show a PM or designer what the user sees as a chart checked by a TLA+ model, with the shortest path to each state that breaks a rule | [`/statechart`](../statechart/SKILL.md) |
 | Vet a performance number before reporting or acting on it | [`/benchmark-checklist`](../benchmark-checklist/SKILL.md) |
 | Keep a decision log during a run, and review it afterward | [`/show-me-your-work`](../show-me-your-work/SKILL.md) |
-| Pick a model for each role and a reasoning budget | [`/setup-arq-stack`](../setup-arq-stack/SKILL.md) |
+| Pick a model and reasoning level for each role | [`/setup-arq-stack`](../setup-arq-stack/SKILL.md) |
 | Turn their own working habits into a personal mode skill | [`/automate-me`](../automate-me/SKILL.md) |
 | Stop agents from repeating the same mistakes in this repo | [`/correct`](../correct/SKILL.md) |
 | Find their way around pstack | `/arq-help` |
