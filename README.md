@@ -1,6 +1,6 @@
 # arq-stack
 
-A private, lower-cost fork of [t3-pstack](https://github.com/chhoumann/t3-pstack) 2.7.1 for [T3 Code](https://github.com/pingdotgg/t3code). Tell `arq-mode` your goal and it picks the workflow.
+A personalized, lower-cost fork of [t3-pstack](https://github.com/chhoumann/t3-pstack) 2.7.1 for [T3 Code](https://github.com/pingdotgg/t3code). Tell `arq-mode` your goal and it picks the workflow.
 
 It drops t3-pstack's many-agent skills and limits each task to two subagents, never nested. The main chat writes the code. A reviewer comes from another model family, searches run on a small model, and no default goes above `high`.
 
@@ -12,11 +12,28 @@ npx -y github:Heritsam/arq-stack update
 npx -y github:Heritsam/arq-stack doctor
 ```
 
-To run this release's installer, use `npx -y github:Heritsam/arq-stack#v3.3.1 doctor`. The repository is private, so git needs access to it.
+To run this release's installer, use `npx -y github:Heritsam/arq-stack#v3.4.0 doctor`.
 
 Then run `/arq-stack:setup-arq-stack` in a T3 thread. It writes the model sheet, `~/.config/arq-stack/models.md`. Without a sheet, every role runs on the defaults in its skill.
 
-Hosts are the ones t3-pstack supports: Claude Code, Codex, Antigravity, and Kiro. Cursor is not supported yet.
+The installer covers the hosts t3-pstack supports: Claude Code, Codex, Antigravity, and Kiro.
+
+### Cursor
+
+The installer does not cover Cursor. Link the skills from a checkout instead. This leaves any skill you already have under the same name alone.
+
+```shell
+git clone https://github.com/Heritsam/arq-stack ~/arq-stack
+mkdir -p ~/.cursor/skills
+for skill in ~/arq-stack/plugins/pstack/skills/*/; do
+  name=$(basename "$skill")
+  [ -e ~/.cursor/skills/$name ] || ln -s "${skill%/}" ~/.cursor/skills/$name
+done
+```
+
+In Cursor the skills have bare names, so start with `/arq-mode`. Cursor also reads `~/.agents/skills` and `~/.claude/skills`, so remove any other pstack copy there, or two skills will share a name.
+
+Auto-routing is off unless your model sheet says `session hook: on`, and Cursor has no hook.
 
 ## Contents
 

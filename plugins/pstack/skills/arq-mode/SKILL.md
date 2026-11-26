@@ -7,6 +7,8 @@ description: arq-stack's agent style for concise, detailed responses, deliberate
 
 Bundled skills live at `../<name>/SKILL.md` from this file, so put this file's absolute path in every `arq-agent` prompt.
 
+On Cursor, each skill is a link with a bare name, so read `arq-stack:<name>` as the `<name>` skill, typed `/<name>`. Resolve this file's link first, with `realpath`. `<plugin root>` is two directories above the real file, not above the link. T3's tools come from the `t3-code` MCP server.
+
 On Codex, read this file whole before acting, in a shell call of its own with `max_output_tokens: 10000`. A smaller output budget cuts lines out of its middle. If a read of it shows `tokens truncated`, read it again that way.
 
 ## Non-negotiables

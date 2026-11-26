@@ -2,6 +2,10 @@
 
 This file is the release changelog, with one `## <version> - <title>` entry per release, newest first. Entries below 3.0.0 are t3-pstack's history and use its names.
 
+## 3.4.0 - Cursor, and a public repository
+
+`arq-mode` says how to read skill names and the plugin root on Cursor, and the README tells how to link the skills there. The installer does not cover Cursor.
+
 ## 3.3.1 - Risky changes always get a reviewer
 
 A change that touches money, auth, data, migrations, or concurrency now gets one reviewer however small it is. In 3.3.0 a small money fix ran with none. Rerun the installer.
