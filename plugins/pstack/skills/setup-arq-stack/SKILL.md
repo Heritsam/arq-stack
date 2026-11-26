@@ -23,7 +23,7 @@ The default role-to-target mapping is the sheet shape in step 5 below. If the sh
 
 **(b) Show the roles and confirm.** Show every role with its entry, and list each line step 2 dropped. Ask whether to accept as-is or change specific roles, offering the detected targets at `high` or below plus `inherit-parent` and `auto` (both mean: this role runs on the parent chat's model).
 
-`search` and `interrogate reviewers` are pools, written as lists in order of preference. One subagent runs, on the first entry that fits, so a longer list does not run more subagents. Each pool needs at least two model families among its targets. A model's family is the first segment of its ID's last `/` part, such as `claude`, `grok`, or `gemini`, except that Fable (`claude-fable-*`) is its own family. The reviewer is from a family other than the one that wrote the code. A listed level is the normal one, and arq-mode raises it to `high` for complex work.
+`search` and `interrogate reviewers` list the models to choose from. The order means nothing. One subagent runs, on the entry that fits the task, so a longer list does not run more subagents. Each list needs at least two model families among its targets. A model's family is the first segment of its ID's last `/` part, such as `claude`, `grok`, or `gemini`, except that Fable (`claude-fable-*`) is its own family. The reviewer is from a family other than the one that wrote the code. A reviewer runs at `medium` or `high`, as the task's complexity calls for, whatever level its line shows.
 
 **(c) Ask about the session-start hook.** Ask whether arq-stack's session-start hook should keep telling new chats when to enter `/arq-mode`. Write `session hook: on` or `session hook: off`.
 
@@ -37,7 +37,7 @@ Overwrite the sheet with the candidate, creating its directory and writing throu
 
 ```markdown
 # pstack model configuration (T3). One line per role. Delete a line to fall back to the skill default.
-# `inherit-parent` or `auto` as a value: the role runs on the parent chat's model (`delegate_task` omits `target`). A list is a pool: one subagent takes the first entry that fits.
+# `inherit-parent` or `auto` as a value: the role runs on the parent chat's model (`delegate_task` omits `target`). A list holds choices in no order: one subagent runs on the entry that fits the task.
 # defaults: 3
 feature, refactoring: claudeAgent/claude-sonnet-5-5 effort=medium
 bug-fix: claudeAgent/claude-sonnet-5-5 effort=medium

@@ -2,6 +2,10 @@
 
 This file is the release changelog, with one `## <version> - <title>` entry per release, newest first. Entries below 3.0.0 are t3-pstack's history and use its names.
 
+## 3.2.1 - Reviewer and search lists are choices, not a ranking
+
+Arq-mode picks the reviewer's model and effort from the list to fit the task's complexity, and the search model to fit the task. 3.2.0 wrongly took the first entry. Rerun the installer.
+
 ## 3.2.0 - Cheaper defaults, one reviewer, main chat writes
 
 Code and prose are written in the main chat. Writer roles default to Sonnet 5.5 at `medium`. `interrogate reviewers` is now a pool of Grok 4.7, Grok 4.6, Gemini 4 Neon, and Sonnet 5.5, and one reviewer from another family runs. A new `search` pool (Composer 2.5, Haiku 5.5) replaces `routine work`. Effort rises to `high` only for complex work, and the reasoning budget question is gone. Rerun the installer, then `/setup-arq-stack`.

@@ -209,7 +209,7 @@ export function validatePluginLayout(pluginRoot) {
 }
 
 const TIERS = ["default", "search", "panel"];
-// The tiers whose default is a list: the search and reviewer pools.
+// The tiers whose default is a list: the search and reviewer choices.
 const LIST_TIERS = ["search", "panel"];
 
 // Check models.json's shape, throwing with the offending tier, role, or entry
