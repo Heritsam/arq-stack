@@ -94,7 +94,7 @@ export function sheetBlock(models) {
     "# `inherit-parent` or `auto` as a value: the role runs on the parent chat's model (`delegate_task` omits `target`). A list holds choices in no order: one subagent runs on the entry that fits the task.",
     "# defaults: 3",
     ...rows,
-    "session hook: on",
+    "session hook: off",
   ];
 }
 

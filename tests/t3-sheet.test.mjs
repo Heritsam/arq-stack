@@ -5,7 +5,7 @@
 // lists models it cannot run.
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
-import { mkdtempSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
+import { mkdirSync, mkdtempSync, readFileSync, symlinkSync, writeFileSync } from "node:fs";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { fileURLToPath } from "node:url";
@@ -315,6 +315,8 @@ describe("the T3 session-start context", () => {
 
   test.each(["claude", "codex"])("the %s hook tells the session to route and dispatch through T3", (runtime) => {
     const home = mkdtempSync(join(tmpdir(), "t3-session-"));
+    mkdirSync(join(home, ".config/arq-stack"), { recursive: true });
+    writeFileSync(join(home, ".config/arq-stack/models.md"), "session hook: on\n");
     const result = spawnSync("sh", [join(pluginRoot, "hooks/session-start.sh"), runtime], {
       encoding: "utf8",
       env: { PATH: process.env.PATH, HOME: home, CLAUDE_PLUGIN_ROOT: pluginRoot, GIT_CONFIG_GLOBAL: "/dev/null" },

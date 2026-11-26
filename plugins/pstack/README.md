@@ -8,7 +8,7 @@ Tell `arq-mode` your goal and it runs the workflow that fits: reproduce and root
 
 - Skills: upstream's skill text, with its Cursor mechanics rewritten for T3. Each appears as `/arq-stack:<name>`.
 - Agents: `arq-agent` and `comment-sicko`, each read by path in a `delegate_task` brief.
-- A session-start hook that tells each chat when to enter `arq-mode`, unless your model sheet turns it off.
+- A session-start hook that tells each chat when to enter `arq-mode`, only when your model sheet turns it on.
 - Local scripts for watching pull requests, checking plans, and auditing worktrees.
 
 ## Data handling

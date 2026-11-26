@@ -2,6 +2,10 @@
 
 This file is the release changelog, with one `## <version> - <title>` entry per release, newest first. Entries below 3.0.0 are t3-pstack's history and use its names.
 
+## 3.3.0 - Auto-routing is off by default
+
+The session-start hook now stays silent unless the model sheet says `session hook: on`. `/setup-arq-stack` writes it off unless you say yes. Rerun the installer.
+
 ## 3.2.1 - Reviewer and search lists are choices, not a ranking
 
 Arq-mode picks the reviewer's model and effort from the list to fit the task's complexity, and the search model to fit the task. 3.2.0 wrongly took the first entry. Rerun the installer.

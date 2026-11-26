@@ -65,9 +65,9 @@ function runHook({ sheet, codexHome, homeSheet, machineSheet, context = mandate,
 const required = process.env.PSTACK_REQUIRE_WINDOWS_HOOK === "1";
 
 describe.skipIf(process.platform !== "win32" && !required)("Windows Codex SessionStart hook", () => {
-  test("injects the shared context without a sheet or Bash", () => {
-    expect(runHook()).toEqual({ status: 0, out: mandate, err: "" });
-    const result = runHook({ host: "powershell" });
+  test("injects the shared context for an on sheet without Bash", () => {
+    expect(runHook({ sheet: "session hook: on\n" })).toEqual({ status: 0, out: mandate, err: "" });
+    const result = runHook({ host: "powershell", sheet: "session hook: on\n" });
     expect({ ...result, out: result.out.replaceAll("\r\n", "\n") }).toEqual({ status: 0, out: mandate.replaceAll("\r\n", "\n"), err: "" });
   });
 
@@ -93,19 +93,19 @@ describe.skipIf(process.platform !== "win32" && !required)("Windows Codex Sessio
     });
   });
 
-  for (const { name, sheet, off } of sheetCases) {
-    test(`${off ? "injects nothing" : "injects the context"} when the sheet has ${name}`, () => {
-      expect(runHook({ sheet })).toEqual({ status: 0, out: off ? "" : mandate, err: "" });
+  for (const { name, sheet, on } of sheetCases) {
+    test(`${on ? "injects the context" : "injects nothing"} when the sheet has ${name}`, () => {
+      expect(runHook({ sheet })).toEqual({ status: 0, out: on ? mandate : "", err: "" });
     });
   }
 
   test("writes UTF-8 context without an added newline", () => {
     const context = "Routing context: 中文 café 🚀";
-    expect(runHook({ context })).toEqual({ status: 0, out: context, err: "" });
+    expect(runHook({ context, sheet: "session hook: on\n" })).toEqual({ status: 0, out: context, err: "" });
   });
 
   test("fails when the context cannot be read", () => {
-    const result = runHook({ context: null });
+    const result = runHook({ context: null, sheet: "session hook: on\n" });
     expect(result.status).not.toBe(0);
     expect(result.out).toBe("");
     expect(result.err).not.toBe("");

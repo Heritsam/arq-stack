@@ -38,25 +38,26 @@ esac
 sheet="${XDG_CONFIG_HOME:-$HOME/.config}/arq-stack/models.md"
 [ -f "$sheet" ] || sheet=$home_sheet
 
-# A sheet that cannot be decoded counts as missing, so injection stays on.
+# Injection is off unless the sheet says `session hook: on`. A sheet that
+# cannot be decoded counts as missing.
 if ! { [ -f "$sheet" ] && [ -r "$sheet" ] && normalized=$(sh "$reader" "$sheet"); }; then
   normalized=
 fi
-off=false
-if printf '%s\n' "$normalized" | grep -qx 'session hook: off'; then
-  off=true
+on=false
+if printf '%s\n' "$normalized" | grep -qx 'session hook: on'; then
+  on=true
 fi
 
 # Antigravity reads a JSON reply and injects each step's text as a system message.
 if [ "$1" = antigravity ]; then
-  if $off; then
+  if ! $on; then
     echo '{}'
   else
     awk 'BEGIN { printf "{\"injectSteps\":[{\"systemMessage\":{\"systemMessage\":\"" }
       { gsub(/\\/, "\\\\"); gsub(/"/, "\\\""); gsub(/\t/, "\\t"); gsub(/\r/, "\\r"); printf "%s\\n", $0 }
       END { print "\"}}]}" }' "$context"
   fi
-elif ! $off; then
+elif $on; then
   cat "$context"
   # Kiro loads each skill through a link with no plugin namespace.
   if [ "$1" = kiro ]; then

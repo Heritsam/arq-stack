@@ -12,7 +12,7 @@ npx -y github:Heritsam/arq-stack update
 npx -y github:Heritsam/arq-stack doctor
 ```
 
-To run this release's installer, use `npx -y github:Heritsam/arq-stack#v3.2.1 doctor`. The repository is private, so git needs access to it.
+To run this release's installer, use `npx -y github:Heritsam/arq-stack#v3.3.0 doctor`. The repository is private, so git needs access to it.
 
 Then run `/arq-stack:setup-arq-stack` in a T3 thread. It writes the model sheet, `~/.config/arq-stack/models.md`. Without a sheet, every role runs on the defaults in its skill.
 

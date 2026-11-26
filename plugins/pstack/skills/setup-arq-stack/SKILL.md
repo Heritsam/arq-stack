@@ -25,7 +25,7 @@ The default role-to-target mapping is the sheet shape in step 5 below. If the sh
 
 `search` and `interrogate reviewers` list the models to choose from. The order means nothing. One subagent runs, on the entry that fits the task, so a longer list does not run more subagents. Each list needs at least two model families among its targets. A model's family is the first segment of its ID's last `/` part, such as `claude`, `grok`, or `gemini`, except that Fable (`claude-fable-*`) is its own family. The reviewer is from a family other than the one that wrote the code. A reviewer runs at `medium` or `high`, as the task's complexity calls for, whatever level its line shows.
 
-**(c) Ask about the session-start hook.** Ask whether arq-stack's session-start hook should keep telling new chats when to enter `/arq-mode`. Write `session hook: on` or `session hook: off`.
+**(c) Ask about the session-start hook.** Ask whether arq-stack's session-start hook should keep telling new chats when to enter `/arq-mode`. It is off unless the user says yes, since a started run loads the whole mode. Write `session hook: on` or `session hook: off`.
 
 ### 4. Validate
 
@@ -46,7 +46,7 @@ hillclimb: claudeAgent/claude-sonnet-5-5 effort=medium
 judgment and prose: claudeAgent/claude-sonnet-5-5 effort=medium
 search: cursor/composer-2.5 fastMode=false, claudeAgent/claude-haiku-5-5 effort=high
 interrogate reviewers: cursor/grok-4.7 reasoning_effort=medium fastMode=false, cursor/grok-4.6 effort=medium fastMode=false, antigravity/gemini-4-neon thought_level=medium, claudeAgent/claude-sonnet-5-5 effort=medium
-session hook: on
+session hook: off
 ```
 
 ### 6. Confirm

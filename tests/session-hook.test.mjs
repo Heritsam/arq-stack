@@ -1,5 +1,5 @@
 // Each runtime's shipped SessionStart command, run for real: the mandate is
-// injected unless the model sheet turns it off. The sheet is the machine's,
+// injected only when the model sheet turns it on. The sheet is the machine's,
 // or, until the installer moves it there, that runtime's home sheet.
 import { describe, expect, test } from "bun:test";
 import { spawnSync } from "node:child_process";
@@ -133,24 +133,24 @@ describe("SessionStart hook", () => {
   for (const runtime of Object.keys(runtimes)) {
     const { reply = (out) => out, silent = "" } = runtimes[runtime];
     const wrap = (out) => (out === silent ? out : reply(out));
-    const expected = (off) => (off ? silent : mandate);
+    const expected = (on) => (on ? mandate : silent);
     describe(runtime, () => {
-      test("injects the mandate when no sheet exists", () => {
+      test("injects nothing when no sheet exists", () => {
         const r = runHook(runtime, null);
-        expect({ ...r, out: wrap(r.out) }).toEqual({ status: 0, out: expected(false), err: "" });
+        expect(r).toEqual({ status: 0, out: silent, err: "" });
       });
 
       // iconv rejects a UTF-16 LE sheet that ends mid-character, so the hook
-      // cannot decode it and must inject as it does for a missing sheet.
-      test("injects the mandate when the sheet cannot be decoded", () => {
+      // cannot decode it and must stay silent as it does for a missing sheet.
+      test("injects nothing when the sheet cannot be decoded", () => {
         const r = runHook(runtime, Buffer.from([0xff, 0xfe, 0x73, 0x00, 0x65]));
-        expect({ status: r.status, out: wrap(r.out) }).toEqual({ status: 0, out: expected(false) });
+        expect({ status: r.status, out: r.out }).toEqual({ status: 0, out: silent });
       });
 
-      for (const { name, sheet, off } of sheetCases) {
-        test(`${off ? "injects nothing" : "injects the mandate"} when the sheet has ${name}`, () => {
+      for (const { name, sheet, on } of sheetCases) {
+        test(`${on ? "injects the mandate" : "injects nothing"} when the sheet has ${name}`, () => {
           const r = runHook(runtime, sheet);
-          expect({ ...r, out: off ? r.out : wrap(r.out) }).toEqual({ status: 0, out: expected(off), err: "" });
+          expect({ ...r, out: on ? wrap(r.out) : r.out }).toEqual({ status: 0, out: expected(on), err: "" });
         });
       }
     });
@@ -196,9 +196,9 @@ describe("the machine sheet", () => {
       }).stdout;
     try {
       mkdirSync(join(home, "xdg/arq-stack"), { recursive: true });
-      writeFileSync(join(home, "xdg/arq-stack/models.md"), "session hook: off\n");
-      expect(decodeAntigravity(run())).toBe(mandate);
-      expect(run({ XDG_CONFIG_HOME: join(home, "xdg") })).toBe("{}\n");
+      writeFileSync(join(home, "xdg/arq-stack/models.md"), "session hook: on\n");
+      expect(run()).toBe("{}\n");
+      expect(decodeAntigravity(run({ XDG_CONFIG_HOME: join(home, "xdg") }))).toBe(mandate);
     } finally {
       rmSync(home, { recursive: true, force: true });
     }
@@ -208,9 +208,9 @@ describe("the machine sheet", () => {
     const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
     try {
       mkdirSync(join(home, "xdg/arq-stack"), { recursive: true });
-      writeFileSync(join(home, "xdg/arq-stack/models.md"), "session hook: off\n");
-      expect(run(runtime, home)).toBe(mandate);
-      expect(run(runtime, home, { XDG_CONFIG_HOME: join(home, "xdg") })).toBe("");
+      writeFileSync(join(home, "xdg/arq-stack/models.md"), "session hook: on\n");
+      expect(run(runtime, home)).toBe("");
+      expect(run(runtime, home, { XDG_CONFIG_HOME: join(home, "xdg") })).toBe(mandate);
     } finally {
       rmSync(home, { recursive: true, force: true });
     }
@@ -218,7 +218,7 @@ describe("the machine sheet", () => {
 });
 
 describe("without a machine sheet, each host reads only its own home sheet", () => {
-  test("an off sheet in the other host's config directory leaves injection on", () => {
+  test("an on sheet in the other host's config directory leaves injection off", () => {
     const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
     try {
       const run = (runtime) =>
@@ -227,14 +227,14 @@ describe("without a machine sheet, each host reads only its own home sheet", () 
           encoding: "utf8",
         }).stdout;
       mkdirSync(join(home, ".codex"));
-      writeFileSync(join(home, ".codex", "arq-stack-models.md"), "session hook: off\n");
-      expect(run("claude")).toBe(mandate);
-      expect(run("codex")).toBe("");
-      rmSync(join(home, ".codex"), { recursive: true });
-      mkdirSync(join(home, ".claude"));
-      writeFileSync(join(home, ".claude", "arq-stack-models.md"), "session hook: off\n");
+      writeFileSync(join(home, ".codex", "arq-stack-models.md"), "session hook: on\n");
       expect(run("claude")).toBe("");
       expect(run("codex")).toBe(mandate);
+      rmSync(join(home, ".codex"), { recursive: true });
+      mkdirSync(join(home, ".claude"));
+      writeFileSync(join(home, ".claude", "arq-stack-models.md"), "session hook: on\n");
+      expect(run("claude")).toBe(mandate);
+      expect(run("codex")).toBe("");
     } finally {
       rmSync(home, { recursive: true, force: true });
     }

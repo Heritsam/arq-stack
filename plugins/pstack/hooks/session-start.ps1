@@ -14,18 +14,18 @@ if (-not (Test-Path -LiteralPath $sheet -PathType Leaf)) {
     }
     $sheet = Join-Path $sheetRoot 'arq-stack-models.md'
 }
-$off = $false
+$on = $false
 if (Test-Path -LiteralPath $sheet -PathType Leaf) {
-    # An unreadable sheet leaves the hook on, as session-start.sh does.
+    # An unreadable sheet leaves the hook off, as session-start.sh does.
     try {
         $bytes = [System.IO.File]::ReadAllBytes($sheet)
         # Windows PowerShell 5.1's `>` writes UTF-16 LE with a byte-order mark.
         $encoding = if ($bytes.Length -ge 2 -and $bytes[0] -eq 0xFF -and $bytes[1] -eq 0xFE) { [System.Text.Encoding]::Unicode } else { [System.Text.UTF8Encoding]::new($false) }
         $lines = $encoding.GetString($bytes).TrimStart([char]0xFEFF) -split "`n" | ForEach-Object { $_ -replace "`r$", '' }
-        $off = $lines -ccontains 'session hook: off'
+        $on = $lines -ccontains 'session hook: on'
     } catch { }
 }
-if ($off) {
+if (-not $on) {
     exit 0
 }
 

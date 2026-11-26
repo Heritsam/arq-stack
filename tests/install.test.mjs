@@ -1034,7 +1034,10 @@ describe("Kiro", () => {
     installKiro(home, kiro);
     const { hooks } = JSON.parse(readFileSync(join(home.dir, "hooks/arq-stack.json"), "utf8"));
     for (const { action } of hooks) {
-      const r = spawnSync("sh", ["-c", action.command], { cwd: tmp(), env: { PATH: process.env.PATH, HOME: tmp() }, encoding: "utf8" });
+      const user = tmp();
+      mkdirSync(join(user, ".config/arq-stack"), { recursive: true });
+      writeFileSync(join(user, ".config/arq-stack/models.md"), "session hook: on\n");
+      const r = spawnSync("sh", ["-c", action.command], { cwd: tmp(), env: { PATH: process.env.PATH, HOME: user }, encoding: "utf8" });
       expect({ status: r.status, stderr: r.stderr, routed: r.stdout.startsWith(routing) }).toEqual({ status: 0, stderr: "", routed: true });
       expect(r.stdout).toContain(`\`<plugin root>\` is \`${join(home.dir, "arq-stack")}\``);
     }

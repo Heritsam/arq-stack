@@ -54,7 +54,7 @@ Its workflow skills, including `/arq-mode`, `/how`, and `/teach`, dispatch subag
 Whether `/arq-mode` stays on depends on how the user starts it:
 
 - Invoking `/arq-mode` attaches the skill to one message. It fades as the chat moves on, so start each new task with it.
-- Where the harness runs arq-stack's session-start hook, each new chat is told when to enter `/arq-mode` on its own.
+- When the model sheet says `session hook: on`, each new chat is told when to enter `/arq-mode` on its own. It is off by default.
 - Skill names differ by harness: `/arq-stack:arq-mode` on Claude Code, `$arq-stack:arq-mode` on Codex, and `/arq-mode` on Kiro. This file writes every skill as `/<name>`.
 
 Mid-chat, "new task" makes the mode match a fresh playbook. `/arq-mode` already uses `arq-agent` for the subagents its playbook steps spawn. To get the same style from a subagent of your own, open its `delegate_task` brief the way arq-mode's Subagents section briefs a `arq-agent`.
