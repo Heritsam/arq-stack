@@ -40,7 +40,7 @@ const REQUEST_TIMEOUT = 60_000;
 export class AppServer {
   static async start(home) {
     const server = new AppServer(home);
-    await server.request("initialize", { clientInfo: { name: "t3-pstack-installer", version: "1" } });
+    await server.request("initialize", { clientInfo: { name: "arq-stack-installer", version: "1" } });
     server.proc.stdin.write(JSON.stringify({ method: "initialized" }) + "\n");
     return server;
   }
@@ -342,7 +342,7 @@ export async function doctorCodex(home, { source, trusted, version, skills, code
         hooks.length > 0 && hooks.every(good),
         hooks.length
           ? hooks.map((h) => `${h.key} ${h.trustStatus}${isPinned(h, codexHook) ? "" : `, not from the ${codexHook.path} this release pins`}`).join("; ")
-          : ["no t3-pstack hook listed", ...warnings.map((warning) => `Codex: ${warning}`)].join("; "),
+          : ["no arq-stack hook listed", ...warnings.map((warning) => `Codex: ${warning}`)].join("; "),
         hooks.some((h) => h.trustStatus === "modified")
           ? `${hint}; Codex 0.164 and later turn the hook off whenever the plugin's files change, as each update does`
           : hint,

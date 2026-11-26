@@ -1,6 +1,10 @@
 # CHANGES
 
-This file is the release changelog, with one `## <version> - <title>` entry per release, newest first. The Cursor-to-T3 rewrite rules live in [`tools/substitutions.json`](tools/substitutions.json), and the [sync boundary](CONTRIBUTING.md#the-sync-boundary) in `CONTRIBUTING.md` defines how a change to upstream's skill content is declared.
+This file is the release changelog, with one `## <version> - <title>` entry per release, newest first. Entries below 3.0.0 are t3-pstack's history and use its names.
+
+## 3.0.0 - arq-stack: t3-pstack 2.7.1 under new names
+
+The plugin is now `arq-stack`, `poteto-mode` is `arq-mode`, `setup-pstack` is `setup-arq-stack`, and the model sheet is `~/.config/arq-stack/models.md`. The upstream sync tooling and CI workflows are gone. No workflow changed. To install, rerun the installer from this repository.
 
 ## 2.7.1 - /reframe lists the problems a vague description could be
 

@@ -1,19 +1,19 @@
 // The model sheet. Provider instance IDs differ per machine, not per harness,
 // so since 2.0.0-rc.3 there is one sheet per machine, at
-// `${XDG_CONFIG_HOME:-~/.config}/t3-pstack/models.md`. Released versions read
-// `t3-pstack-models.md` in each config home, so the installer moves that sheet
+// `${XDG_CONFIG_HOME:-~/.config}/arq-stack/models.md`. Released versions read
+// `arq-stack-models.md` in each config home, so the installer moves that sheet
 // to the machine path once and leaves a symlink at each home's old path.
 import { existsSync, lstatSync, mkdirSync, readFileSync, realpathSync, renameSync, statSync, symlinkSync } from "node:fs";
 import { dirname, isAbsolute, join, relative, resolve, sep } from "node:path";
 
-import { checkSheet, parseSheet } from "../../plugins/pstack/skills/setup-pstack/scripts/t3-sheet.mjs";
+import { checkSheet, parseSheet } from "../../plugins/pstack/skills/setup-arq-stack/scripts/t3-sheet.mjs";
 import { check, tempBeside, writeAtomic } from "./common.mjs";
 
-export const HOME_SHEET = "t3-pstack-models.md";
-const SETUP_HINT = "run /t3-pstack:setup-pstack in a T3 thread";
+export const HOME_SHEET = "arq-stack-models.md";
+const SETUP_HINT = "run /arq-stack:setup-arq-stack in a T3 thread";
 
 export const sheetPath = (env, home) =>
-  join(env.XDG_CONFIG_HOME?.trim() ? resolve(env.XDG_CONFIG_HOME.trim()) : join(home, ".config"), "t3-pstack", "models.md");
+  join(env.XDG_CONFIG_HOME?.trim() ? resolve(env.XDG_CONFIG_HOME.trim()) : join(home, ".config"), "arq-stack", "models.md");
 
 const isFile = (path) => statSync(path, { throwIfNoEntry: false })?.isFile() ?? false;
 const sameBytes = (a, b) => readFileSync(a).equals(readFileSync(b));
@@ -81,7 +81,7 @@ export function doctorSheet(sheet, homes, { catalog, roles, tiers, retired = [],
   }
   const lines = parseSheet(readFileSync(sheet, "utf8"));
   const problems = checkSheet(lines, { roles, defaults: tiers, catalog, retired });
-  // A retired line passes, so a released sheet keeps working, and setup-pstack
+  // A retired line passes, so a released sheet keeps working, and setup-arq-stack
   // drops it on its next run.
   const stale = [...new Set(lines.map(({ key }) => key).filter((key) => retired.includes(key)))];
   const shadowing = old.filter((path) => !resolvesTo(path, sheet) && !sameBytes(path, sheet));

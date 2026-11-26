@@ -12,14 +12,14 @@ import { check, pluginIntact, readJson, tempBeside } from "./common.mjs";
 
 export const ANTIGRAVITY_MANIFEST = ".antigravity-plugin/plugin.json";
 // The install directory, which keys Antigravity's enabled state in config.json.
-const DIR = "t3-pstack";
+const DIR = "arq-stack";
 
 const installPath = (home) => join(home.dir, "config", "plugins", DIR);
 const installedVersion = (path) => (existsSync(join(path, ANTIGRAVITY_MANIFEST)) ? readJson(join(path, ANTIGRAVITY_MANIFEST)).version : undefined);
 // The session-start hook's files: the hooks file agy reads, its script, and
 // what the script reads. A copy routes as released only while each matches
 // the plugin this run installs.
-const HOOK_FILES = ["hooks.json", "hooks/session-start.sh", "hooks/session-start-context.md", "skills/setup-pstack/scripts/read-sheet.sh"];
+const HOOK_FILES = ["hooks.json", "hooks/session-start.sh", "hooks/session-start-context.md", "skills/setup-arq-stack/scripts/read-sheet.sh"];
 const intact = (path, pluginRoot, skills) =>
   pluginIntact(path, ANTIGRAVITY_MANIFEST, skills) &&
   HOOK_FILES.every((file) => existsSync(join(path, file)) && readFileSync(join(path, file)).equals(readFileSync(join(pluginRoot, file))));
@@ -60,6 +60,6 @@ export function doctorAntigravity(home, { pluginRoot, version, skills, hint }) {
       !installed ? "not installed" : installed !== version ? `${installed}, expected ${version}` : whole ? installed : `${installed}, but its files at ${path} are missing or changed`,
       hint,
     ),
-    check("enabled", on, on ? "yes" : `no, ${join(home.dir, "config", "config.json")} turns it off`, `turn t3-pstack on in that file's "plugins" map`),
+    check("enabled", on, on ? "yes" : `no, ${join(home.dir, "config", "config.json")} turns it off`, `turn arq-stack on in that file's "plugins" map`),
   ];
 }

@@ -61,8 +61,8 @@ describe("shared Agent Skills tree", () => {
 
   test("every skill the session-start routing tells the model to invoke is model-invocable", () => {
     const routing = readFileSync(join(repoRoot, "plugins/pstack/hooks/session-start-context.md"), "utf8");
-    const named = [...routing.matchAll(/`t3-pstack:([a-z0-9-]+)`/g)].map((m) => m[1]);
-    expect(named).toContain("poteto-mode");
+    const named = [...routing.matchAll(/`arq-stack:([a-z0-9-]+)`/g)].map((m) => m[1]);
+    expect(named).toContain("arq-mode");
     for (const name of named) {
       const { data } = parseFrontmatter(readFileSync(join(skillsDir, name, "SKILL.md"), "utf8"));
       expect(data["disable-model-invocation"], `${name} is invoked by the routing text`).not.toBe(true);
@@ -73,9 +73,9 @@ describe("shared Agent Skills tree", () => {
   // read's budget at 4 bytes a token, and caps a budget at the model's
   // 10000-token tool output limit. A tenth stays spare for what the call
   // prints around the file.
-  test("poteto-mode fits the one Codex read that it and the routing text ask for", () => {
+  test("arq-mode fits the one Codex read that it and the routing text ask for", () => {
     const routing = readFileSync(join(repoRoot, "plugins/pstack/hooks/session-start-context.md"), "utf8");
-    const skill = readFileSync(join(skillsDir, "poteto-mode", "SKILL.md"), "utf8");
+    const skill = readFileSync(join(skillsDir, "arq-mode", "SKILL.md"), "utf8");
     const budget = (text) => Number(text.match(/`max_output_tokens: (\d+)`/)?.[1]);
     const asked = budget(skill);
     expect(budget(routing)).toBe(asked);
@@ -161,9 +161,9 @@ describe("shared Agent Skills tree", () => {
   test("the plan copies each portable asset from its source into a directory it owns", () => {
     const { files, ownedDirs } = plan(repoRoot);
     for (const { source, target } of PORTABLE_ASSETS) {
-      expect(files[`plugins/pstack/skills/poteto-mode/references/licenses/${target}`]).toBe(readFileSync(join(repoRoot, source), "utf8"));
+      expect(files[`plugins/pstack/skills/arq-mode/references/licenses/${target}`]).toBe(readFileSync(join(repoRoot, source), "utf8"));
       expect(ownedDirs).toEqual(OWNED_DIRS);
-      expect(dirname(`plugins/pstack/skills/poteto-mode/references/licenses/${target}`)).toBe(OWNED_DIRS[0]);
+      expect(dirname(`plugins/pstack/skills/arq-mode/references/licenses/${target}`)).toBe(OWNED_DIRS[0]);
     }
   });
 

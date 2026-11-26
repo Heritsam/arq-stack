@@ -9,13 +9,13 @@
 //               the Claude Code marketplace entry, and package.json
 //   CHANGES.md must carry a heading for the current VERSION (release completeness)
 //   plugins/pstack/models.json (the T3 model policy: tier defaults and roles)
-//     -> each model-consuming skill's "## Models" section and setup-pstack's
+//     -> each model-consuming skill's "## Models" section and setup-arq-stack's
 //        sheet block (tools/derive-t3.mjs)
 //   plugins/pstack/agents/*.md -> the "agents" list in
 //     plugins/pstack/.claude-plugin/plugin.json (a list replaces the default
 //     agents/ directory, so it names every agent)
 //   LICENSE, LICENSE-cursor-team-kit, LICENSE-thermos, NOTICE-skills.md
-//     -> copies under poteto-mode/references/licenses/, so the notices ship
+//     -> copies under arq-mode/references/licenses/, so the notices ship
 //        inside the installed plugin
 //
 // Also validated: skill frontmatter, the skills tree's links,
@@ -41,7 +41,7 @@ import { fileURLToPath, pathToFileURL } from "node:url";
 import { Type } from "typebox";
 import { Value } from "typebox/value";
 
-import { panelFamilies, parseEntry } from "../plugins/pstack/skills/setup-pstack/scripts/t3-sheet.mjs";
+import { panelFamilies, parseEntry } from "../plugins/pstack/skills/setup-arq-stack/scripts/t3-sheet.mjs";
 import { applyRegions, parseFrontmatter, ROUTED_SKILL, t3Regions } from "./derive-t3.mjs";
 import { FROZEN_HOOKS, hookDigest, INSTALL_RECORD, PLUGIN, SKILLS } from "./plugin.mjs";
 import { pathIsInside, validateSkillsTree, walk } from "./validate-skills.mjs";
@@ -61,7 +61,7 @@ const VERSIONED_MANIFESTS = [
   "package.json",
 ];
 
-const LICENSES = `${SKILLS}/poteto-mode/references/licenses`;
+const LICENSES = `${SKILLS}/arq-mode/references/licenses`;
 export const PORTABLE_ASSETS = [
   { source: "LICENSE", target: "LICENSE" },
   { source: "LICENSE-cursor-team-kit", target: "LICENSE-cursor-team-kit" },
@@ -216,7 +216,7 @@ const LIST_TIERS = ["panel", "judges"];
 // Check models.json's shape, throwing with the offending tier, role, or entry
 // named. `skillExists(skill)` reports whether a role's skill directory carries
 // a SKILL.md. Every tier holds T3 entries in the sheet grammar of
-// setup-pstack's t3-sheet.mjs, and each list tier spans two model families.
+// setup-arq-stack's t3-sheet.mjs, and each list tier spans two model families.
 export function parseModels(raw, skillExists) {
   const fail = (message) => {
     throw new Error(`models.json: ${message}`);

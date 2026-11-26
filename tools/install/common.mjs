@@ -7,9 +7,9 @@ import { chmodSync, chownSync, existsSync, mkdtempSync, readFileSync, realpathSy
 import { tmpdir } from "node:os";
 import { basename, delimiter, dirname, extname, join, resolve } from "node:path";
 
-export const PLUGIN_ID = "t3-pstack@t3-pstack";
-export const MARKETPLACE = "t3-pstack";
-export const HOME_REPO = "chhoumann/t3-pstack";
+export const PLUGIN_ID = "arq-stack@arq-stack";
+export const MARKETPLACE = "arq-stack";
+export const HOME_REPO = "Heritsam/arq-stack";
 
 // `~`, `~/` and `~\` expand as T3 expands them (provider-core
 // pathExpansion.ts). `~user` does not.
@@ -33,16 +33,16 @@ const gitUrl = (url) => (GITHUB_URL.test(url) ? { ...github(url.match(GITHUB_URL
 const directory = (path) => ({ key: `local:${existsSync(path) ? realpathSync(path) : resolve(path)}`, label: path });
 
 // The GitHub repository npx fetched this installer from, so a fork's own
-// `npx -y github:<owner>/t3-pstack` installs from that fork with no --source.
+// `npx -y github:<owner>/arq-stack` installs from that fork with no --source.
 // npx writes the spec it was given to the package.json two levels above the
-// package, at <npm cache>/_npx/<hash>/node_modules/t3-pstack.
+// package, at <npm cache>/_npx/<hash>/node_modules/arq-stack.
 const GITHUB_SPEC = /^(?:github:)?([A-Za-z0-9][A-Za-z0-9-]*\/[A-Za-z0-9._-]+?)(?:\.git)?(?:#.*)?$/;
 export function npxOrigin(packageRoot) {
   const root = resolve(packageRoot);
   if (basename(dirname(root)) !== "node_modules") return undefined;
   let spec;
   try {
-    spec = JSON.parse(readFileSync(join(root, "..", "..", "package.json"), "utf8")).dependencies?.["t3-pstack"];
+    spec = JSON.parse(readFileSync(join(root, "..", "..", "package.json"), "utf8")).dependencies?.["arq-stack"];
   } catch {
     return undefined;
   }
@@ -62,7 +62,7 @@ export function parseSource(text, home) {
 // The command that reruns this install from `source`. A GitHub source is a
 // copy of this repository, so its own installer converges on its version.
 export function installHint(source) {
-  if (source.key === github(HOME_REPO).key) return "rerun `npx -y github:chhoumann/t3-pstack install`";
+  if (source.key === github(HOME_REPO).key) return "rerun `npx -y github:Heritsam/arq-stack install`";
   return `rerun \`npx -y github:${source.repo ?? HOME_REPO} install --source ${source.arg}\``;
 }
 
@@ -84,9 +84,9 @@ export function codexSource(entry) {
 // A home installs only from a marketplace whose every source is trusted.
 export const trustedOnly = (sources, trusted) => sources.length > 0 && sources.every((s) => trusted.has(s.key));
 
-// The marketplace check both doctors run. A marketplace named t3-pstack from
+// The marketplace check both doctors run. A marketplace named arq-stack from
 // any source but the trusted ones is not installed from, nor its hook trusted.
-// One from chhoumann/t3-pstack, on a run whose --source names another, is
+// One from Heritsam/arq-stack, on a run whose --source names another, is
 // still installed from, and the check warns that the run did not switch it.
 export function marketplaceCheck(sources, { source, trusted }, remove) {
   const hint = installHint(source);
@@ -128,7 +128,7 @@ export const pluginIntact = (root, manifest, skills) =>
 let neutral;
 export function neutralCwd() {
   if (!neutral) {
-    neutral = mkdtempSync(join(tmpdir(), "t3-pstack-"));
+    neutral = mkdtempSync(join(tmpdir(), "arq-stack-"));
     process.on("exit", () => rmSync(neutral, { recursive: true, force: true }));
   }
   return neutral;
@@ -193,7 +193,7 @@ export function runCli(bin, args, env) {
 
 // A path beside `path` that nothing holds. Creating it with the `wx` flag or
 // symlinkSync fails rather than replace a file someone else put there.
-export const tempBeside = (path) => join(dirname(path), `.${basename(path)}.${randomUUID()}.t3-pstack.tmp`);
+export const tempBeside = (path) => join(dirname(path), `.${basename(path)}.${randomUUID()}.arq-stack.tmp`);
 
 // A crash between the write and the rename leaves the old file whole. The
 // rename lands on the symlink's target, so a settings file one home links

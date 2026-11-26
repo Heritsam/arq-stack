@@ -1,19 +1,19 @@
 #!/usr/bin/env node
-// t3-pstack's installer. `install`, or `update`, the same command, brings
+// arq-stack's installer. `install`, or `update`, the same command, brings
 // every Claude Code, Codex, and Kiro home T3 can run, and the profile of each
-// Antigravity instance T3 runs, to this package's version of t3-pstack, pins each Codex home's marketplace to that version's tag, trusts
+// Antigravity instance T3 runs, to this package's version of arq-stack, pins each Codex home's marketplace to that version's tag, trusts
 // the Codex session-start hook, and moves the model sheet to its one path per
 // machine. Each step converges, so a second run changes nothing. `doctor`
 // checks the same homes and writes nothing itself, though the Codex app-server
 // it starts refreshes a Git marketplace, as any T3 Codex thread does. Both
 // exit 1 when a check fails.
 //
-// Each home's t3-pstack marketplace must come from chhoumann/t3-pstack or
+// Each home's arq-stack marketplace must come from Heritsam/arq-stack or
 // from this run's --source, which defaults to the repository npx fetched this
 // installer from. A home whose marketplace has another source, such as a
 // local --source from an earlier run, gets nothing installed and no hook
 // trusted, and doctor fails it with that source. A run never switches a
-// home's source: one from chhoumann/t3-pstack stays on it under another
+// home's source: one from Heritsam/arq-stack stays on it under another
 // --source, and doctor warns with the commands that switch it.
 //
 // The pin is the `ref` of a Codex home's Git marketplace, the tag v<version>.
@@ -25,8 +25,8 @@
 // home get a copy of the plugin this run installs, so they too change only
 // when `update` runs.
 //
-//   npx -y github:chhoumann/t3-pstack <install|update|doctor>
-//     --source <owner/repo|git URL|dir>   marketplace source, default the repo npx ran, else chhoumann/t3-pstack
+//   npx -y github:Heritsam/arq-stack <install|update|doctor>
+//     --source <owner/repo|git URL|dir>   marketplace source, default the repo npx ran, else Heritsam/arq-stack
 //     --claude-home <dir>, --codex-home <dir>, --kiro-home <dir>   more homes, repeatable
 //     --catalog <file>   an orchestrator_capabilities dump to check the sheet's targets against
 //     --json
@@ -56,7 +56,7 @@ const HARNESSES = {
 const SHEET_HARNESSES = new Set(["claude", "codex"]);
 
 const USAGE =
-  "usage: t3-pstack <install|update|doctor> [--source <owner/repo|git URL|dir>] " +
+  "usage: arq-stack <install|update|doctor> [--source <owner/repo|git URL|dir>] " +
   "[--claude-home <dir>]... [--codex-home <dir>]... [--kiro-home <dir>]... [--catalog <file>] [--json]";
 
 // What to converge on comes from the plugin this run installs: the local
@@ -156,7 +156,7 @@ async function run(argv, env, home) {
 }
 
 function render({ command, version, source, settings, homes, sheet, failed, warnings }, home) {
-  const lines = [`t3-pstack ${version} from ${source}`];
+  const lines = [`arq-stack ${version} from ${source}`];
   const section = (title, steps, checks) => {
     lines.push("", title);
     for (const step of steps) lines.push(`  - ${step}`);
@@ -194,6 +194,6 @@ try {
     process.exitCode = report.failed ? 1 : 0;
   }
 } catch (err) {
-  console.error(`t3-pstack: ${err.message}`);
+  console.error(`arq-stack: ${err.message}`);
   process.exitCode = 2;
 }

@@ -98,11 +98,11 @@ describe("regions", () => {
   });
 
   test("a strict stamp throws when an owned file lost its anchor, and a sync stamp leaves it alone", () => {
-    const text = "---\nname: setup-pstack\ndescription: d\n---\n\n### 5. Write the rule\n\n```\nold\n```\n";
-    expect(() => applyRegions("plugins/pstack/skills/setup-pstack/SKILL.md", text, models, { strict: true })).toThrow(
-      "plugins/pstack/skills/setup-pstack/SKILL.md: no anchor for the sheet block to stamp",
+    const text = "---\nname: setup-arq-stack\ndescription: d\n---\n\n### 5. Write the rule\n\n```\nold\n```\n";
+    expect(() => applyRegions("plugins/pstack/skills/setup-arq-stack/SKILL.md", text, models, { strict: true })).toThrow(
+      "plugins/pstack/skills/setup-arq-stack/SKILL.md: no anchor for the sheet block to stamp",
     );
-    expect(applyRegions("plugins/pstack/skills/setup-pstack/SKILL.md", text, models)).toBe(text);
+    expect(applyRegions("plugins/pstack/skills/setup-arq-stack/SKILL.md", text, models)).toBe(text);
   });
 
   test("applyRegions leaves a file no region names untouched", () => {
@@ -228,9 +228,9 @@ describe("parseFrontmatter", () => {
 describe("deriveT3", () => {
   const front = (flags, name = "x") => `---\nname: ${name}\ndescription: d\n${flags}---\n\nbody\n`;
 
-  test("drops disable-model-invocation on poteto-mode only, so the session-start hook can invoke it", () => {
+  test("drops disable-model-invocation on arq-mode only, so the session-start hook can invoke it", () => {
     const flag = "disable-model-invocation: true\n";
-    expect(deriveT3("plugins/pstack/skills/poteto-mode/SKILL.md", front(flag, "Poteto Mode"), models)).toStartWith(front("", "poteto-mode"));
+    expect(deriveT3("plugins/pstack/skills/arq-mode/SKILL.md", front(flag, "Arq Mode"), models)).toStartWith(front("", "arq-mode"));
     expect(deriveT3("plugins/pstack/skills/tdd/SKILL.md", front(flag, "tdd"), models)).toBe(front(flag, "tdd"));
     expect(deriveT3("plugins/pstack/skills/principle-x/SKILL.md", front(flag, "principle-x"), models)).toBe(front(flag, "principle-x"));
   });
@@ -259,14 +259,14 @@ describe("deriveT3", () => {
   });
 
   test("leaves a flag line in the body alone", () => {
-    const text = front("", "poteto-mode") + "disable-model-invocation: true\n";
-    expect(deriveT3("plugins/pstack/skills/poteto-mode/SKILL.md", text, models)).toStartWith(text);
+    const text = front("", "arq-mode") + "disable-model-invocation: true\n";
+    expect(deriveT3("plugins/pstack/skills/arq-mode/SKILL.md", text, models)).toStartWith(text);
   });
 
   test("appends and stamps a Models section when upstream has none, naming the sheet and the entry grammar", () => {
     const out = deriveT3("plugins/pstack/skills/swarm/SKILL.md", front(""), models);
     expect(out).toContain("body\n\n## Models\n\nRole defaults on T3, stamped from `plugins/pstack/models.json`.");
-    expect(out).toContain("`t3-pstack-models.md`");
+    expect(out).toContain("`arq-stack-models.md`");
     expect(out).toContain("It splits at its first `/`");
     expect(out.endsWith("- swarm workers: `claudeAgent/claude-opus-5-5 effort=high`\n")).toBe(true);
     expect(deriveT3("plugins/pstack/skills/swarm/SKILL.md", out, models)).toBe(out);
@@ -274,7 +274,7 @@ describe("deriveT3", () => {
 
   test("names the alias a released sheet may still use", () => {
     const aliased = { ...models, roles: models.roles.map((r) => (r.role === "bug-fix" ? { ...r, alias: "bugfix" } : r)) };
-    const out = deriveT3("plugins/pstack/skills/poteto-mode/SKILL.md", front("", "poteto-mode"), aliased);
+    const out = deriveT3("plugins/pstack/skills/arq-mode/SKILL.md", front("", "arq-mode"), aliased);
     expect(out).toContain(`- bug-fix: \`${models.tiers.default}\` (a \`bugfix\` line counts as this role)`);
   });
 
@@ -289,7 +289,7 @@ describe("plugin agents", () => {
     const listed = JSON.parse(readFileSync(join(repoRoot, "plugins/pstack/.claude-plugin/plugin.json"), "utf8")).agents;
     const shipped = readdirSync(join(repoRoot, "plugins/pstack/agents")).map((f) => `./agents/${f}`).sort();
     expect(listed).toEqual(shipped);
-    expect(listed).toContain("./agents/poteto-agent.md");
+    expect(listed).toContain("./agents/arq-agent.md");
   });
 
   test("stamping the agents list keeps every other manifest field", () => {
@@ -330,8 +330,8 @@ describe("plan, changes, apply", () => {
   };
   const snapshot = (dir) => Object.fromEntries(walk(dir).map((path) => [path, readFileSync(path, "utf8")]));
   const quiet = { log: () => {} };
-  const STUB = "plugins/pstack/skills/poteto-mode/references/licenses/LICENSE";
-  const STRAY = "plugins/pstack/skills/poteto-mode/references/licenses/stray.md";
+  const STUB = "plugins/pstack/skills/arq-mode/references/licenses/LICENSE";
+  const STRAY = "plugins/pstack/skills/arq-mode/references/licenses/stray.md";
   const generate = (root, ...args) => spawnSync(process.execPath, [join(root, "tools/generate.mjs"), ...args], { encoding: "utf8" });
   const append = (root, rel, text) => writeFileSync(join(root, rel), readFileSync(join(root, rel), "utf8") + text);
 
@@ -368,7 +368,7 @@ describe("plan, changes, apply", () => {
   test("a hand edit to a stamped Models line or to the sheet block is restored", () => {
     const root = repoCopy();
     const swarm = "plugins/pstack/skills/swarm/SKILL.md";
-    const setup = "plugins/pstack/skills/setup-pstack/SKILL.md";
+    const setup = "plugins/pstack/skills/setup-arq-stack/SKILL.md";
     const text = (rel) => readFileSync(join(root, rel), "utf8");
     writeFileSync(join(root, swarm), text(swarm).replace(/^- swarm workers: .*$/m, "- swarm workers: stale"));
     writeFileSync(join(root, setup), text(setup).replace(/^bug-fix: .*$/m, "bug-fix: stale"));
@@ -487,12 +487,12 @@ describe("plan, changes, apply", () => {
   test("problems reports every broken contract, and --check prints each and exits 1", () => {
     const root = repoCopy();
     append(root, "plugins/pstack/skills/deslop/SKILL.md", "\n[gone](missing.md)\n");
-    const poteto = "plugins/pstack/skills/poteto-mode/SKILL.md";
-    writeFileSync(join(root, poteto), readFileSync(join(root, poteto), "utf8").replace("---\n\n", "disable-model-invocation: true\n---\n\n"));
+    const arqMode = "plugins/pstack/skills/arq-mode/SKILL.md";
+    writeFileSync(join(root, arqMode), readFileSync(join(root, arqMode), "utf8").replace("---\n\n", "disable-model-invocation: true\n---\n\n"));
     writeFileSync(join(root, "plugins/pstack/plugin.json"), "{}\n");
     const failures = problems(root);
     expect(failures).toEqual([
-      expect.stringContaining("poteto-mode/SKILL.md: disable-model-invocation: true stops the session-start hook"),
+      expect.stringContaining("arq-mode/SKILL.md: disable-model-invocation: true stops the session-start hook"),
       "invalid local markdown links:\ndeslop/SKILL.md -> missing.md (missing)",
       expect.stringContaining("plugins/pstack/plugin.json exists; Codex would truncate"),
     ]);
@@ -542,8 +542,8 @@ describe("plan, changes, apply", () => {
       expect.stringContaining(`${hooks} changed, which stops its hook`),
     ]);
     const marketplace = ".agents/plugins/marketplace.json";
-    writeFileSync(join(root, marketplace), readFileSync(join(root, marketplace), "utf8").replace('"name": "t3-pstack",\n      "source"', '"name": "other",\n      "source"'));
-    expect(problems(root)).toContainEqual(expect.stringContaining('plugin name "other" != Codex manifest name "t3-pstack"'));
+    writeFileSync(join(root, marketplace), readFileSync(join(root, marketplace), "utf8").replace('"name": "arq-stack",\n      "source"', '"name": "other",\n      "source"'));
+    expect(problems(root)).toContainEqual(expect.stringContaining('plugin name "other" != Codex manifest name "arq-stack"'));
   });
 
   test("problems reports a hook path that resolves outside the plugin, through .. or through a symlink", () => {

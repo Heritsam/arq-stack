@@ -21,8 +21,8 @@ const CURSOR_ONLY_KEYS = /^(?:mode|icon|color|reminder|is_background):/;
 // The skill the session-start hook invokes by name. Upstream marks every skill
 // disable-model-invocation: true, which makes the Skill tool refuse it, so the
 // port drops the flag here and nowhere else. The other skills stay manual-only,
-// as upstream ships them, and poteto-mode reads them by path.
-export const ROUTED_SKILL = "poteto-mode";
+// as upstream ships them, and arq-mode reads them by path.
+export const ROUTED_SKILL = "arq-mode";
 
 // The port's frontmatter for an upstream skill or plugin agent: `name` is the
 // skill's directory or the agent's file name, which is how Claude Code and
@@ -67,9 +67,9 @@ export const fenceUnder = (title, lang) => (lines) => {
 };
 
 const SHEET =
-  "A role line in the model sheet overrides each one. The sheet is `~/.config/t3-pstack/models.md` " +
-  "(`$XDG_CONFIG_HOME/t3-pstack/models.md` when that is set), one per machine, and `/setup-pstack` writes it. " +
-  "When it is missing, read `t3-pstack-models.md` in the host's config directory (`$CLAUDE_CONFIG_DIR` or " +
+  "A role line in the model sheet overrides each one. The sheet is `~/.config/arq-stack/models.md` " +
+  "(`$XDG_CONFIG_HOME/arq-stack/models.md` when that is set), one per machine, and `/setup-arq-stack` writes it. " +
+  "When it is missing, read `arq-stack-models.md` in the host's config directory (`$CLAUDE_CONFIG_DIR` or " +
   "`~/.claude` on Claude Code, `$CODEX_HOME` or `~/.codex` on Codex). An entry is `<providerInstanceId>/<modelId>` plus `<optionId>=<value>` pairs, and it " +
   "maps onto `delegate_task`'s `target`, with the provider instance as `providerInstanceId`, the model as `model`, " +
   "and the pairs as `options`. It splits at its first `/`, so a model ID with its own `/`, such as OpenCode's " +
@@ -86,7 +86,7 @@ export function modelsSection(models, roles) {
   return `Role defaults on T3, stamped from \`plugins/pstack/models.json\`. ${SHEET}\n\n${roles.map((r) => roleLine(models, r)).join("\n")}`;
 }
 
-// The sheet setup-pstack writes when the user keeps every default.
+// The sheet setup-arq-stack writes when the user keeps every default.
 export function sheetBlock(models) {
   const rows = models.roles.map((r) => `${r.role}: ${entries(models, r).join(", ")}`);
   return [
@@ -115,7 +115,7 @@ export function t3Regions(models) {
       render: () => padded(modelsSection(models, roles)),
     })),
     {
-      file: skillFile("setup-pstack"),
+      file: skillFile("setup-arq-stack"),
       name: "sheet block",
       locate: fenceUnder("Write the sheet", "markdown"),
       render: () => sheetBlock(models),

@@ -25,7 +25,7 @@ const sessionStart = Object.fromEntries(
     JSON.parse(readFileSync(join(pluginRoot, file), "utf8")).hooks.SessionStart[0],
   ]),
 );
-const antigravityHooks = JSON.parse(readFileSync(join(pluginRoot, "hooks.json"), "utf8"))["t3-pstack"].SessionStart;
+const antigravityHooks = JSON.parse(readFileSync(join(pluginRoot, "hooks.json"), "utf8"))["arq-stack"].SessionStart;
 const commands = {
   claude: sessionStart.claude.hooks[0].command,
   codex: sessionStart.codex.hooks[0].command,
@@ -42,7 +42,7 @@ const decodeAntigravity = (out) => {
 
 const decodeKiro = (out) => {
   const paragraph = out.slice(mandate.length);
-  for (const text of ["`/t3-pstack:<name>` is `/<name>`", `\`<plugin root>\` is \`${pluginRoot}\``, "`t3-code` MCP server"]) {
+  for (const text of ["`/arq-stack:<name>` is `/<name>`", `\`<plugin root>\` is \`${pluginRoot}\``, "`t3-code` MCP server"]) {
     expect(paragraph).toContain(text);
   }
   return out.slice(0, mandate.length);
@@ -69,7 +69,7 @@ const runtimes = {
   // It has no home sheet, so its cases use the machine sheet.
   antigravity: {
     hooks: "antigravity",
-    sheetDir: ".config/t3-pstack",
+    sheetDir: ".config/arq-stack",
     sheetFile: "models.md",
     env: () => ({ PLUGIN_ROOT: pluginRoot }),
     reply: decodeAntigravity,
@@ -78,7 +78,7 @@ const runtimes = {
   // Kiro names no plugin root, so the hook must use the one its command passes.
   kiro: {
     hooks: "kiro",
-    sheetDir: ".config/t3-pstack",
+    sheetDir: ".config/arq-stack",
     sheetFile: "models.md",
     env: () => ({ CLAUDE_PLUGIN_ROOT: "/nonexistent" }),
     reply: decodeKiro,
@@ -87,7 +87,7 @@ const runtimes = {
 
 function runHook(runtime, sheet, command = commands[runtimes[runtime].hooks]) {
   const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
-  const { sheetDir, sheetFile = "t3-pstack-models.md", env } = runtimes[runtime];
+  const { sheetDir, sheetFile = "arq-stack-models.md", env } = runtimes[runtime];
   const sheetRoot = join(home, sheetDir);
   if (sheet !== null) {
     mkdirSync(sheetRoot, { recursive: true });
@@ -115,9 +115,9 @@ describe("SessionStart hook", () => {
   });
 
   test("names only skills that exist", () => {
-    const named = [...mandate.matchAll(/(?:pstack:|`\/)([a-z0-9-]+)/g)].map((m) => m[1]);
+    const named = [...mandate.matchAll(/(?:arq-stack:|`\/)([a-z0-9-]+)/g)].map((m) => m[1]);
     const skills = new Set(agentSkills(join(pluginRoot, "skills")).map(({ name }) => name));
-    expect(named).toContain("poteto-mode");
+    expect(named).toContain("arq-mode");
     expect(named.filter((name) => !skills.has(name))).toEqual([]);
   });
 
@@ -165,21 +165,21 @@ describe("the machine sheet", () => {
     }).stdout;
 
   test("Antigravity loads its one SessionStart hook with no timeout of its own", () => {
-    expect(Object.keys(JSON.parse(readFileSync(join(pluginRoot, "hooks.json"), "utf8")))).toEqual(["t3-pstack"]);
+    expect(Object.keys(JSON.parse(readFileSync(join(pluginRoot, "hooks.json"), "utf8")))).toEqual(["arq-stack"]);
     expect(antigravityHooks).toEqual([{ type: "command", command: "sh ./hooks/session-start.sh antigravity" }]);
   });
 
   test.each(["claude", "codex"])("decides over the %s home sheet", (runtime) => {
     const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
     try {
-      const machineSheet = join(home, ".config/t3-pstack/models.md");
-      mkdirSync(join(home, ".config/t3-pstack"), { recursive: true });
+      const machineSheet = join(home, ".config/arq-stack/models.md");
+      mkdirSync(join(home, ".config/arq-stack"), { recursive: true });
       mkdirSync(join(home, `.${runtime}`));
       writeFileSync(machineSheet, "session hook: off\n");
-      writeFileSync(join(home, `.${runtime}`, "t3-pstack-models.md"), "session hook: on\n");
+      writeFileSync(join(home, `.${runtime}`, "arq-stack-models.md"), "session hook: on\n");
       expect(run(runtime, home)).toBe("");
       writeFileSync(machineSheet, "session hook: on\n");
-      writeFileSync(join(home, `.${runtime}`, "t3-pstack-models.md"), "session hook: off\n");
+      writeFileSync(join(home, `.${runtime}`, "arq-stack-models.md"), "session hook: off\n");
       expect(run(runtime, home)).toBe(mandate);
     } finally {
       rmSync(home, { recursive: true, force: true });
@@ -195,8 +195,8 @@ describe("the machine sheet", () => {
         encoding: "utf8",
       }).stdout;
     try {
-      mkdirSync(join(home, "xdg/t3-pstack"), { recursive: true });
-      writeFileSync(join(home, "xdg/t3-pstack/models.md"), "session hook: off\n");
+      mkdirSync(join(home, "xdg/arq-stack"), { recursive: true });
+      writeFileSync(join(home, "xdg/arq-stack/models.md"), "session hook: off\n");
       expect(decodeAntigravity(run())).toBe(mandate);
       expect(run({ XDG_CONFIG_HOME: join(home, "xdg") })).toBe("{}\n");
     } finally {
@@ -207,8 +207,8 @@ describe("the machine sheet", () => {
   test.each(["claude", "codex"])("moves with XDG_CONFIG_HOME on %s", (runtime) => {
     const home = mkdtempSync(join(tmpdir(), "pstack-hook-"));
     try {
-      mkdirSync(join(home, "xdg/t3-pstack"), { recursive: true });
-      writeFileSync(join(home, "xdg/t3-pstack/models.md"), "session hook: off\n");
+      mkdirSync(join(home, "xdg/arq-stack"), { recursive: true });
+      writeFileSync(join(home, "xdg/arq-stack/models.md"), "session hook: off\n");
       expect(run(runtime, home)).toBe(mandate);
       expect(run(runtime, home, { XDG_CONFIG_HOME: join(home, "xdg") })).toBe("");
     } finally {
@@ -227,12 +227,12 @@ describe("without a machine sheet, each host reads only its own home sheet", () 
           encoding: "utf8",
         }).stdout;
       mkdirSync(join(home, ".codex"));
-      writeFileSync(join(home, ".codex", "t3-pstack-models.md"), "session hook: off\n");
+      writeFileSync(join(home, ".codex", "arq-stack-models.md"), "session hook: off\n");
       expect(run("claude")).toBe(mandate);
       expect(run("codex")).toBe("");
       rmSync(join(home, ".codex"), { recursive: true });
       mkdirSync(join(home, ".claude"));
-      writeFileSync(join(home, ".claude", "t3-pstack-models.md"), "session hook: off\n");
+      writeFileSync(join(home, ".claude", "arq-stack-models.md"), "session hook: off\n");
       expect(run("claude")).toBe("");
       expect(run("codex")).toBe(mandate);
     } finally {

@@ -22,12 +22,12 @@ function runHook({ sheet, codexHome, homeSheet, machineSheet, context = mandate,
     for (const [dir, content] of [[join(profile, ".codex"), homeSheet], [sheetRoot, sheet]]) {
       if (content !== undefined) {
         mkdirSync(dir, { recursive: true });
-        writeSheet(join(dir, "t3-pstack-models.md"), content);
+        writeSheet(join(dir, "arq-stack-models.md"), content);
       }
     }
     if (machineSheet !== undefined) {
-      mkdirSync(join(profile, ".config/t3-pstack"), { recursive: true });
-      writeSheet(join(profile, ".config/t3-pstack/models.md"), machineSheet);
+      mkdirSync(join(profile, ".config/arq-stack"), { recursive: true });
+      writeSheet(join(profile, ".config/arq-stack/models.md"), machineSheet);
     }
     const contextPath = join(plugin, "hooks/session-start-context.md");
     if (context === null) rmSync(contextPath);

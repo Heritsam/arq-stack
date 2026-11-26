@@ -1,5 +1,7 @@
 # NOTICE
 
+arq-stack is a fork of [t3-pstack](https://github.com/chhoumann/t3-pstack) 2.7.1 (commit `11a71d2`). Its own changes are (c) 2026 Heritsam and are released under the same [MIT license](LICENSE). It renames `poteto-mode` to `arq-mode` and removes the upstream sync tooling. The text below is t3-pstack's notice, so it uses the original names and file paths.
+
 t3-pstack is a port of [pstack](https://github.com/cursor/plugins/tree/main/pstack) (c) 2026 Lauren Tan (poteto) to T3 Code. Its tooling and parts of its port-only code come from [pstack-claude](https://github.com/michael-denyer/pstack-claude) (c) 2026 Michael Denyer, which t3-pstack forked through 1.0.14. The T3 modifications and additions are (c) 2026 Christian Bager Bach Houmann and are released under the same [MIT license](LICENSE). All upstream copyright notices and license terms are preserved.
 
 ## Upstream sources

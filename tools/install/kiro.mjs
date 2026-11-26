@@ -3,7 +3,7 @@
 // its own (packages/provider-kiro/src/server/acpSupport.ts), and Kiro reads
 // its skills and hooks from $KIRO_HOME, else ~/.kiro. It loads a skill from
 // <home>/skills/<name> and a hook from any file in <home>/hooks, so the
-// installer keeps a copy of the plugin at <home>/t3-pstack, links each skill
+// installer keeps a copy of the plugin at <home>/arq-stack, links each skill
 // into it, and writes a hooks file that runs the copy's session-start hook.
 import { createHash } from "node:crypto";
 import { cpSync, existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, readlinkSync, realpathSync, renameSync, rmSync, symlinkSync, unlinkSync, writeFileSync } from "node:fs";
@@ -12,9 +12,9 @@ import { dirname, join, resolve, sep } from "node:path";
 import { check, isPlainCopy, readJson, tempBeside } from "./common.mjs";
 import { INSTALL_RECORD } from "../plugin.mjs";
 
-const SESSION_START_FILES = ["hooks/session-start.sh", "hooks/session-start-context.md", "skills/setup-pstack/scripts/read-sheet.sh"];
-const copyPath = (home) => join(real(home.dir), "t3-pstack");
-const hooksPath = (home) => join(home.dir, "hooks", "t3-pstack.json");
+const SESSION_START_FILES = ["hooks/session-start.sh", "hooks/session-start-context.md", "skills/setup-arq-stack/scripts/read-sheet.sh"];
+const copyPath = (home) => join(real(home.dir), "arq-stack");
+const hooksPath = (home) => join(home.dir, "hooks", "arq-stack.json");
 const sha256 = (data) => createHash("sha256").update(data).digest("hex");
 
 const quote = (text) => `'${text.replaceAll("'", "'\\''")}'`;
@@ -29,7 +29,7 @@ export const hooksFile = (root) =>
     {
       version: "v1",
       hooks: ["SessionStart", "PostCompact"].map((trigger) => ({
-        name: "t3-pstack",
+        name: "arq-stack",
         trigger,
         timeout: 10,
         action: { type: "command", command: hookCommand(root) },
@@ -50,11 +50,11 @@ function classify(path, name, root, skills) {
   return { kind: inside(linked, root) || inside(real(path), real(root)) ? "ours" : "link", linked };
 }
 
-// Kiro has no skill namespace, so an entry of the same name that t3-pstack
+// Kiro has no skill namespace, so an entry of the same name that arq-stack
 // did not make keeps the plugin's skill from loading.
 const COLLISIONS = {
   own: { kind: "your own skill", fix: "rename your skill" },
-  copy: { kind: "a plain copy of t3-pstack's skill", fix: "delete the copy" },
+  copy: { kind: "a plain copy of arq-stack's skill", fix: "delete the copy" },
   link: { kind: "a link into another checkout", fix: "remove the link" },
 };
 
@@ -111,7 +111,7 @@ function* files(dir, prefix = "") {
 function readRecord(path) {
   const file = join(path, INSTALL_RECORD);
   const record = existsSync(file) ? readJson(file) : undefined;
-  return record?.installer === "t3-pstack" ? { ...record, hooks: [record.hooks].flat() } : undefined;
+  return record?.installer === "arq-stack" ? { ...record, hooks: [record.hooks].flat() } : undefined;
 }
 
 function extraFiles(path, record) {
@@ -138,7 +138,7 @@ const theirs = (state) => state.kind === "foreign" || state.kind === "extra";
 
 function writeRecord(fresh, version, hooks, old) {
   const found = hooksState(hooks.path, old, hooks.text);
-  const record = { installer: "t3-pstack", version, files: [...files(fresh)], hooks: [sha256(hooks.text), ...(found.kind === "stale" ? [found.hash] : [])] };
+  const record = { installer: "arq-stack", version, files: [...files(fresh)], hooks: [sha256(hooks.text), ...(found.kind === "stale" ? [found.hash] : [])] };
   writeFileSync(join(fresh, INSTALL_RECORD), JSON.stringify(record, null, 2) + "\n", { flag: "wx" });
 }
 
@@ -207,7 +207,7 @@ export function installKiro(home, context) {
 
 const INSTALLED = {
   missing: (path, state, { hint }) => ["not installed", hint],
-  foreign: (path, state, { hint }) => [`${path} is not t3-pstack's copy, since it has no ${INSTALL_RECORD} from the installer`, `move ${path} out of the way, then ${hint}`],
+  foreign: (path, state, { hint }) => [`${path} is not arq-stack's copy, since it has no ${INSTALL_RECORD} from the installer`, `move ${path} out of the way, then ${hint}`],
   extra: (path, { extra }, { hint }) => [`${path} holds files the installer did not put there: ${extra.join(", ")}`, `move or delete them, then ${hint}`],
   stale: (path, { record }, { version, hint }) => [
     record.version === version ? `${version}, but its files at ${path} are missing or changed` : `${record.version}, expected ${version}`,
@@ -233,7 +233,7 @@ const collisionCheck = ({ name, path, kind, linked }, hint) =>
   check(
     `skill ${name}`,
     false,
-    `${path} is ${COLLISIONS[kind].kind}${linked ? `, ${linked}` : ""}, so t3-pstack's ${name} cannot load`,
+    `${path} is ${COLLISIONS[kind].kind}${linked ? `, ${linked}` : ""}, so arq-stack's ${name} cannot load`,
     `${COLLISIONS[kind].fix}, then ${hint}`,
   );
 

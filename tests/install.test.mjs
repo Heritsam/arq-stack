@@ -35,11 +35,11 @@ import { doctorSheet, moveSheet } from "../tools/install/sheet.mjs";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 const { roles, tiers, retired } = JSON.parse(readFileSync(join(repoRoot, "plugins/pstack/models.json"), "utf8"));
-const FIX = "rerun `npx -y github:chhoumann/t3-pstack install`";
+const FIX = "rerun `npx -y github:Heritsam/arq-stack install`";
 
 const scratch = [];
 function tmp() {
-  const dir = realpathSync(mkdtempSync(join(tmpdir(), "t3-pstack-install-")));
+  const dir = realpathSync(mkdtempSync(join(tmpdir(), "arq-stack-install-")));
   scratch.push(dir);
   return dir;
 }
@@ -55,7 +55,7 @@ const mode = (path) => statSync(path).mode & 0o777;
 // The plugin's own skills, and a doctor context that trusts the GitHub repo.
 const SKILL = (name) => readFileSync(join(repoRoot, "plugins/pstack/skills", name, "SKILL.md"), "utf8");
 const skills = new Map(["how", "why"].map((name) => [name, SKILL(name)]));
-const github = parseSource("chhoumann/t3-pstack", "/home/u");
+const github = parseSource("Heritsam/arq-stack", "/home/u");
 const context = { source: github, trusted: new Set([github.key]), version: "2.0.0-rc.3", skills };
 
 // A `claude` that records each call and changes nothing.
@@ -221,7 +221,7 @@ function claudeHome({ autoUpdate } = {}) {
   const dir = tmp();
   const user = {
     scope: "user",
-    installPath: `${dir}/plugins/cache/t3-pstack/t3-pstack/2.0.0-rc.3`,
+    installPath: `${dir}/plugins/cache/arq-stack/arq-stack/2.0.0-rc.3`,
     version: "2.0.0-rc.3",
     installedAt: "2026-10-06T08:38:28.344Z",
     lastUpdated: "2026-10-14T11:20:44.228Z",
@@ -230,26 +230,26 @@ function claudeHome({ autoUpdate } = {}) {
   const project = {
     scope: "project",
     projectPath: "/home/u",
-    installPath: `${dir}/plugins/cache/t3-pstack/t3-pstack/1.0.11`,
+    installPath: `${dir}/plugins/cache/arq-stack/arq-stack/1.0.11`,
     version: "1.0.11",
     installedAt: "2026-10-13T04:43:26.759Z",
     lastUpdated: "2026-10-13T04:43:26.759Z",
     gitCommitSha: "0000000000000000000000000000000000000000",
   };
   const other = { scope: "project", projectPath: "/home/u", installPath: "/x", version: "0.1.0" };
-  writeJson(join(user.installPath, ".claude-plugin/plugin.json"), { name: "t3-pstack", version: user.version });
+  writeJson(join(user.installPath, ".claude-plugin/plugin.json"), { name: "arq-stack", version: user.version });
   for (const [name, text] of skills) {
     mkdirSync(join(user.installPath, "skills", name), { recursive: true });
     writeFileSync(join(user.installPath, "skills", name, "SKILL.md"), text);
   }
   writeJson(join(dir, "plugins/installed_plugins.json"), {
     version: 2,
-    plugins: { "t3-pstack@t3-pstack": [user, project], "other@market": [other] },
+    plugins: { "arq-stack@arq-stack": [user, project], "other@market": [other] },
   });
   writeJson(join(dir, "settings.json"), {
-    enabledPlugins: { "t3-pstack@t3-pstack": true },
+    enabledPlugins: { "arq-stack@arq-stack": true },
     extraKnownMarketplaces: {
-      "t3-pstack": { source: { source: "github", repo: "chhoumann/t3-pstack" }, ...(autoUpdate && { autoUpdate }) },
+      "arq-stack": { source: { source: "github", repo: "Heritsam/arq-stack" }, ...(autoUpdate && { autoUpdate }) },
     },
   });
   return { dir, user, project, other };
@@ -272,7 +272,7 @@ describe("a stale other-scope Claude Code record", () => {
     expect(JSON.parse(readFileSync(path, "utf8"))).toEqual({
       version: 2,
       plugins: {
-        "t3-pstack@t3-pstack": [
+        "arq-stack@arq-stack": [
           user,
           { ...project, installPath: user.installPath, version: user.version, gitCommitSha: user.gitCommitSha, lastUpdated: user.lastUpdated },
         ],
@@ -301,7 +301,7 @@ describe("a stale other-scope Claude Code record", () => {
     writeFileSync(join(dir, "skills/how/SKILL.md"), SKILL("how"));
     const home = { harness: "claude", dir, from: ["default"], bin: "claude" };
     expect(doctorClaude(home, context)).toEqual([
-      { name: "marketplace", ok: true, detail: "chhoumann/t3-pstack" },
+      { name: "marketplace", ok: true, detail: "Heritsam/arq-stack" },
       { name: "installed", ok: true, detail: "2.0.0-rc.3" },
       { name: "enabled", ok: true, detail: "yes" },
       { name: "marketplace auto-update", ok: false, detail: "false", fix: FIX },
@@ -323,7 +323,7 @@ describe("a stale other-scope Claude Code record", () => {
     syncScopedRecords(dir);
     rmSync(join(dir, "skills"), { recursive: true });
     const settings = JSON.parse(readFileSync(join(dir, "settings.json"), "utf8"));
-    settings.extraKnownMarketplaces["t3-pstack"].autoUpdate = true;
+    settings.extraKnownMarketplaces["arq-stack"].autoUpdate = true;
     writeJson(join(dir, "settings.json"), settings);
     expect(doctorClaude(home, context).filter((c) => !c.ok)).toEqual([]);
   });
@@ -347,7 +347,7 @@ describe("a stale other-scope Claude Code record", () => {
       { name: "installed", ok: false, detail: `2.0.0-rc.3, but its files at ${user.installPath} are missing`, fix: FIX },
     ]);
     expect(installClaude(home, context)).toEqual(["reinstalled 2.0.0-rc.3, whose files were missing"]);
-    expect(claude.calls()).toEqual(["plugin install t3-pstack@t3-pstack --scope user"]);
+    expect(claude.calls()).toEqual(["plugin install arq-stack@arq-stack --scope user"]);
   });
 
   test("install says so when the marketplace has no newer version to update to", () => {
@@ -356,7 +356,7 @@ describe("a stale other-scope Claude Code record", () => {
     const claude = fakeClaude();
     const home = { harness: "claude", dir, from: ["default"], bin: claude.bin };
     expect(installClaude(home, { ...context, version: "2.0.0-rc.4" })).toEqual(["the marketplace has no 2.0.0-rc.4, so it stays at 2.0.0-rc.3"]);
-    expect(claude.calls()).toEqual(["plugin marketplace update t3-pstack", "plugin update t3-pstack@t3-pstack --scope user"]);
+    expect(claude.calls()).toEqual(["plugin marketplace update arq-stack", "plugin update arq-stack@arq-stack --scope user"]);
   });
 
   test("doctor reports settings.json that does not parse by path alone", () => {
@@ -376,12 +376,12 @@ describe("a stale other-scope Claude Code record", () => {
   });
 });
 
-describe("a t3-pstack marketplace from another source", () => {
+describe("a arq-stack marketplace from another source", () => {
   function counterfeit() {
     const { dir } = claudeHome({ autoUpdate: true });
     const elsewhere = tmp();
     const settings = JSON.parse(readFileSync(join(dir, "settings.json"), "utf8"));
-    settings.extraKnownMarketplaces["t3-pstack"].source = { source: "directory", path: elsewhere };
+    settings.extraKnownMarketplaces["arq-stack"].source = { source: "directory", path: elsewhere };
     writeJson(join(dir, "settings.json"), settings);
     rmSync(join(dir, "plugins/installed_plugins.json"));
     return { dir, elsewhere };
@@ -396,8 +396,8 @@ describe("a t3-pstack marketplace from another source", () => {
     expect(doctorClaude(home, context)[0]).toEqual({
       name: "marketplace",
       ok: false,
-      detail: `${elsewhere}, which is neither chhoumann/t3-pstack nor --source`,
-      fix: `if you trust it, rerun with --source ${elsewhere}; otherwise remove it with \`CLAUDE_CONFIG_DIR=${dir} claude plugin marketplace remove t3-pstack\`, then ${FIX}`,
+      detail: `${elsewhere}, which is neither Heritsam/arq-stack nor --source`,
+      fix: `if you trust it, rerun with --source ${elsewhere}; otherwise remove it with \`CLAUDE_CONFIG_DIR=${dir} claude plugin marketplace remove arq-stack\`, then ${FIX}`,
     });
   });
 
@@ -416,8 +416,8 @@ describe("a t3-pstack marketplace from another source", () => {
 describe("--source", () => {
   test("reads owner/repo as GitHub even where that relative directory exists, and a URL to the same repository as the same source", () => {
     const cwd = tmp();
-    mkdirSync(join(cwd, "chhoumann/t3-pstack"), { recursive: true });
-    const r = spawnSync(process.execPath, [join(repoRoot, "tools/install.mjs"), "doctor", "--source", "chhoumann/t3-pstack", "--json"], {
+    mkdirSync(join(cwd, "Heritsam/arq-stack"), { recursive: true });
+    const r = spawnSync(process.execPath, [join(repoRoot, "tools/install.mjs"), "doctor", "--source", "Heritsam/arq-stack", "--json"], {
       cwd,
       env: { HOME: tmp(), PATH: tmp() },
       encoding: "utf8",
@@ -425,10 +425,10 @@ describe("--source", () => {
     expect({ status: r.status, stderr: r.stderr, source: r.status === 0 && JSON.parse(r.stdout).source }).toEqual({
       status: 0,
       stderr: "",
-      source: "chhoumann/t3-pstack",
+      source: "Heritsam/arq-stack",
     });
-    expect(parseSource("git@github.com:ChHoumann/t3-pstack.git", "/home/u").key).toBe(github.key);
-    expect(parseSource("https://github.com/chhoumann/t3-pstack", "/home/u").key).toBe(github.key);
+    expect(parseSource("git@github.com:HeritSam/arq-stack.git", "/home/u").key).toBe(github.key);
+    expect(parseSource("https://github.com/Heritsam/arq-stack", "/home/u").key).toBe(github.key);
     expect(() => parseSource("./missing", cwd)).toThrow("--source ./missing: not owner/repo, a Git URL, or an existing directory");
   });
 
@@ -441,29 +441,29 @@ describe("--source", () => {
       });
       return JSON.parse(r.stdout).homes.find((row) => row.harness === "claude").checks;
     };
-    expect(doctor("someone/t3-pstack")).toEqual([
+    expect(doctor("someone/arq-stack")).toEqual([
       {
         name: "installed",
         ok: false,
         detail: "the home does not exist",
-        fix: "rerun `npx -y github:someone/t3-pstack install --source someone/t3-pstack`",
+        fix: "rerun `npx -y github:someone/arq-stack install --source someone/arq-stack`",
       },
     ]);
     const local = resolve(repoRoot);
-    expect(doctor(local)[0].fix).toBe(`rerun \`npx -y github:chhoumann/t3-pstack install --source ${local}\``);
+    expect(doctor(local)[0].fix).toBe(`rerun \`npx -y github:Heritsam/arq-stack install --source ${local}\``);
 
-    const fork = parseSource("someone/t3-pstack", "/home/u");
+    const fork = parseSource("someone/arq-stack", "/home/u");
     const home = { harness: "claude", dir: tmp(), from: ["default"], bin: "claude" };
     const fixes = doctorClaude(home, { ...context, source: fork, trusted: new Set([github.key, fork.key]) })
       .filter((c) => !c.ok)
       .map((c) => c.fix);
-    expect(fixes).toEqual(Array(4).fill("rerun `npx -y github:someone/t3-pstack install --source someone/t3-pstack`"));
+    expect(fixes).toEqual(Array(4).fill("rerun `npx -y github:someone/arq-stack install --source someone/arq-stack`"));
   });
 
-  test("leaves a home on chhoumann/t3-pstack where it is, and doctor warns with the commands that switch it", () => {
+  test("leaves a home on Heritsam/arq-stack where it is, and doctor warns with the commands that switch it", () => {
     const { dir } = claudeHome();
     syncScopedRecords(dir);
-    const fork = parseSource("someone/t3-pstack", "/home/u");
+    const fork = parseSource("someone/arq-stack", "/home/u");
     const forked = { ...context, source: fork, trusted: new Set([github.key, fork.key]) };
     const claude = fakeClaude();
     const home = { harness: "claude", dir, from: ["default"], bin: claude.bin };
@@ -472,10 +472,10 @@ describe("--source", () => {
       name: "marketplace",
       ok: false,
       warn: true,
-      detail: "chhoumann/t3-pstack, not --source someone/t3-pstack",
+      detail: "Heritsam/arq-stack, not --source someone/arq-stack",
       fix:
-        `to install from someone/t3-pstack, remove it with \`CLAUDE_CONFIG_DIR=${dir} claude plugin marketplace remove t3-pstack\`, ` +
-        "then rerun `npx -y github:someone/t3-pstack install --source someone/t3-pstack`",
+        `to install from someone/arq-stack, remove it with \`CLAUDE_CONFIG_DIR=${dir} claude plugin marketplace remove arq-stack\`, ` +
+        "then rerun `npx -y github:someone/arq-stack install --source someone/arq-stack`",
     });
   });
 });
@@ -501,10 +501,10 @@ describe("codex app-server output that is not JSON-RPC", () => {
 
 describe("doctor's check of a Codex marketplace's pin", () => {
   test("passes on this release's tag, and on a local directory, which has no tag", () => {
-    const git = { source_type: "git", source: "https://github.com/chhoumann/t3-pstack.git" };
+    const git = { source_type: "git", source: "https://github.com/Heritsam/arq-stack.git" };
     const pin = (marketplace) => pinCheck(marketplace, "v2.2.5", FIX);
     expect(pin({ ...git, ref: "v2.2.5" })).toEqual({ name: "marketplace pin", ok: true, detail: "v2.2.5" });
-    expect(pin({ source_type: "local", source: "/src/t3-pstack" })).toEqual({
+    expect(pin({ source_type: "local", source: "/src/arq-stack" })).toEqual({
       name: "marketplace pin",
       ok: true,
       detail: "none, since a local directory has no tag",
@@ -527,23 +527,23 @@ describe("the model sheet", () => {
     const root = tmp();
     const homes = [".claude", ".codex", ".codex-pool", ".claude-never-run"].map((name) => ({ dir: join(root, name) }));
     for (const { dir } of homes.slice(0, 3)) mkdirSync(dir);
-    return { root, homes, sheet: join(root, ".config/t3-pstack/models.md") };
+    return { root, homes, sheet: join(root, ".config/arq-stack/models.md") };
   }
 
   test("moves a linked home sheet to the machine path once and links every existing home to it", () => {
     const { root, homes, sheet } = machine();
-    writeFileSync(join(root, ".claude/t3-pstack-models.md"), SHEET);
-    symlinkSync(join(root, ".claude/t3-pstack-models.md"), join(root, ".codex/t3-pstack-models.md"));
+    writeFileSync(join(root, ".claude/arq-stack-models.md"), SHEET);
+    symlinkSync(join(root, ".claude/arq-stack-models.md"), join(root, ".codex/arq-stack-models.md"));
 
     expect(moveSheet(sheet, homes)).toEqual([
-      `moved the sheet from ${join(root, ".claude/t3-pstack-models.md")}`,
-      `linked ${join(root, ".claude/t3-pstack-models.md")} to it`,
-      `linked ${join(root, ".codex-pool/t3-pstack-models.md")} to it`,
+      `moved the sheet from ${join(root, ".claude/arq-stack-models.md")}`,
+      `linked ${join(root, ".claude/arq-stack-models.md")} to it`,
+      `linked ${join(root, ".codex-pool/arq-stack-models.md")} to it`,
     ]);
     expect(readFileSync(sheet, "utf8")).toBe(SHEET);
-    expect(readlinkSync(join(root, ".claude/t3-pstack-models.md"))).toBe(sheet);
-    expect(readlinkSync(join(root, ".codex/t3-pstack-models.md"))).toBe(join(root, ".claude/t3-pstack-models.md"));
-    expect(readlinkSync(join(root, ".codex-pool/t3-pstack-models.md"))).toBe(sheet);
+    expect(readlinkSync(join(root, ".claude/arq-stack-models.md"))).toBe(sheet);
+    expect(readlinkSync(join(root, ".codex/arq-stack-models.md"))).toBe(join(root, ".claude/arq-stack-models.md"));
+    expect(readlinkSync(join(root, ".codex-pool/arq-stack-models.md"))).toBe(sheet);
     expect(existsSync(join(root, ".claude-never-run"))).toBe(false);
 
     expect(moveSheet(sheet, homes)).toEqual([]);
@@ -555,53 +555,53 @@ describe("the model sheet", () => {
 
   test("links the machine path to a home sheet's file outside every home instead of copying it", () => {
     const { root, homes, sheet } = machine();
-    const dotfiles = join(root, "dotfiles/t3-pstack-models.md");
+    const dotfiles = join(root, "dotfiles/arq-stack-models.md");
     mkdirSync(join(root, "dotfiles"));
     writeFileSync(dotfiles, SHEET);
-    symlinkSync(dotfiles, join(root, ".claude/t3-pstack-models.md"));
-    writeFileSync(join(root, ".codex/t3-pstack-models.md"), SHEET);
+    symlinkSync(dotfiles, join(root, ".claude/arq-stack-models.md"));
+    writeFileSync(join(root, ".codex/arq-stack-models.md"), SHEET);
 
     expect(moveSheet(sheet, homes)).toEqual([
       `linked the sheet to ${dotfiles}`,
-      `linked ${join(root, ".codex/t3-pstack-models.md")} to it`,
-      `linked ${join(root, ".codex-pool/t3-pstack-models.md")} to it`,
+      `linked ${join(root, ".codex/arq-stack-models.md")} to it`,
+      `linked ${join(root, ".codex-pool/arq-stack-models.md")} to it`,
     ]);
     expect(readlinkSync(sheet)).toBe(dotfiles);
-    expect(readlinkSync(join(root, ".claude/t3-pstack-models.md"))).toBe(dotfiles);
+    expect(readlinkSync(join(root, ".claude/arq-stack-models.md"))).toBe(dotfiles);
     expect(readFileSync(dotfiles, "utf8")).toBe(SHEET);
     expect(moveSheet(sheet, homes)).toEqual([]);
   });
 
   test("keeps a home sheet that links to another file, even one that matches the machine sheet", () => {
     const { root, homes, sheet } = machine();
-    mkdirSync(join(root, ".config/t3-pstack"), { recursive: true });
+    mkdirSync(join(root, ".config/arq-stack"), { recursive: true });
     writeFileSync(sheet, SHEET);
     mkdirSync(join(root, "dotfiles"));
     writeFileSync(join(root, "dotfiles/models.md"), SHEET);
-    symlinkSync(join(root, "dotfiles/models.md"), join(root, ".claude/t3-pstack-models.md"));
+    symlinkSync(join(root, "dotfiles/models.md"), join(root, ".claude/arq-stack-models.md"));
 
     expect(moveSheet(sheet, homes)).toEqual([
-      `linked ${join(root, ".codex/t3-pstack-models.md")} to it`,
-      `linked ${join(root, ".codex-pool/t3-pstack-models.md")} to it`,
+      `linked ${join(root, ".codex/arq-stack-models.md")} to it`,
+      `linked ${join(root, ".codex-pool/arq-stack-models.md")} to it`,
     ]);
-    expect(readlinkSync(join(root, ".claude/t3-pstack-models.md"))).toBe(join(root, "dotfiles/models.md"));
+    expect(readlinkSync(join(root, ".claude/arq-stack-models.md"))).toBe(join(root, "dotfiles/models.md"));
   });
 
   test("moves a sheet with its mode, and leaves a file beside it that only shares the old temp name", () => {
     const { root, homes, sheet } = machine();
-    writeFileSync(join(root, ".claude/t3-pstack-models.md"), SHEET, { mode: 0o600 });
-    writeFileSync(join(root, ".claude/t3-pstack-models.md.t3-pstack-link"), "mine\n");
+    writeFileSync(join(root, ".claude/arq-stack-models.md"), SHEET, { mode: 0o600 });
+    writeFileSync(join(root, ".claude/arq-stack-models.md.arq-stack-link"), "mine\n");
 
     moveSheet(sheet, homes);
     expect(mode(sheet)).toBe(0o600);
-    expect(readFileSync(join(root, ".claude/t3-pstack-models.md.t3-pstack-link"), "utf8")).toBe("mine\n");
-    expect(readdirSync(join(root, ".claude")).sort()).toEqual(["t3-pstack-models.md", "t3-pstack-models.md.t3-pstack-link"]);
+    expect(readFileSync(join(root, ".claude/arq-stack-models.md.arq-stack-link"), "utf8")).toBe("mine\n");
+    expect(readdirSync(join(root, ".claude")).sort()).toEqual(["arq-stack-models.md", "arq-stack-models.md.arq-stack-link"]);
   });
 
   test("leaves home sheets that disagree, and doctor says so", () => {
     const { root, homes, sheet } = machine();
-    writeFileSync(join(root, ".claude/t3-pstack-models.md"), SHEET);
-    writeFileSync(join(root, ".codex/t3-pstack-models.md"), "session hook: off\n");
+    writeFileSync(join(root, ".claude/arq-stack-models.md"), SHEET);
+    writeFileSync(join(root, ".codex/arq-stack-models.md"), "session hook: off\n");
 
     expect(moveSheet(sheet, homes)).toEqual([]);
     expect(existsSync(sheet)).toBe(false);
@@ -609,7 +609,7 @@ describe("the model sheet", () => {
       {
         name: "machine sheet",
         ok: false,
-        detail: `missing; ${join(root, ".claude/t3-pstack-models.md")}, ${join(root, ".codex/t3-pstack-models.md")} differ, so the installer leaves them`,
+        detail: `missing; ${join(root, ".claude/arq-stack-models.md")}, ${join(root, ".codex/arq-stack-models.md")} differ, so the installer leaves them`,
         fix: `keep one, then ${FIX}`,
       },
     ]);
@@ -617,20 +617,20 @@ describe("the model sheet", () => {
 
   test("keeps a home sheet that differs from an existing machine sheet, and links one that matches", () => {
     const { root, homes, sheet } = machine();
-    mkdirSync(join(root, ".config/t3-pstack"), { recursive: true });
+    mkdirSync(join(root, ".config/arq-stack"), { recursive: true });
     writeFileSync(sheet, SHEET);
-    writeFileSync(join(root, ".claude/t3-pstack-models.md"), SHEET);
-    writeFileSync(join(root, ".codex/t3-pstack-models.md"), "session hook: off\n");
+    writeFileSync(join(root, ".claude/arq-stack-models.md"), SHEET);
+    writeFileSync(join(root, ".codex/arq-stack-models.md"), "session hook: off\n");
 
     expect(moveSheet(sheet, homes)).toEqual([
-      `linked ${join(root, ".claude/t3-pstack-models.md")} to it`,
-      `linked ${join(root, ".codex-pool/t3-pstack-models.md")} to it`,
+      `linked ${join(root, ".claude/arq-stack-models.md")} to it`,
+      `linked ${join(root, ".codex-pool/arq-stack-models.md")} to it`,
     ]);
-    expect(lstatSync(join(root, ".codex/t3-pstack-models.md")).isSymbolicLink()).toBe(false);
+    expect(lstatSync(join(root, ".codex/arq-stack-models.md")).isSymbolicLink()).toBe(false);
     expect(doctorSheet(sheet, homes, { catalog: null, roles, tiers, hint: FIX })[1]).toEqual({
       name: "home sheets",
       ok: false,
-      detail: `${join(root, ".codex/t3-pstack-models.md")} differ from the machine sheet`,
+      detail: `${join(root, ".codex/arq-stack-models.md")} differ from the machine sheet`,
       fix: `move each aside, then ${FIX} to link it`,
     });
   });
@@ -642,7 +642,7 @@ describe("the model sheet", () => {
         name: "machine sheet",
         ok: false,
         detail: "none, so every role runs on its skill's defaults",
-        fix: "run /t3-pstack:setup-pstack in a T3 thread",
+        fix: "run /arq-stack:setup-arq-stack in a T3 thread",
         warn: true,
       },
     ]);
@@ -652,11 +652,11 @@ describe("the model sheet", () => {
       name: "machine sheet valid",
       ok: false,
       detail: 'bug-fix: "claude-opus" does not start with <providerInstanceId>/<modelId>; "how critics" is not a pstack role',
-      fix: "run /t3-pstack:setup-pstack in a T3 thread",
+      fix: "run /arq-stack:setup-arq-stack in a T3 thread",
     });
   });
 
-  test("doctor passes a sheet that still carries retired lines, and warns that setup-pstack drops them", () => {
+  test("doctor passes a sheet that still carries retired lines, and warns that setup-arq-stack drops them", () => {
     const { homes, sheet } = machine();
     mkdirSync(join(sheet, ".."), { recursive: true });
     const released = [
@@ -673,7 +673,7 @@ describe("the model sheet", () => {
         name: "retired roles",
         ok: false,
         detail: 'no skill reads "how explorer", "hardest tasks", "reflect tooling"',
-        fix: "run /t3-pstack:setup-pstack in a T3 thread, which drops them",
+        fix: "run /arq-stack:setup-arq-stack in a T3 thread, which drops them",
         warn: true,
       },
     ]);
@@ -690,17 +690,17 @@ function antigravityHome() {
 const pluginRoot = join(repoRoot, "plugins/pstack");
 const shipped = JSON.parse(readFileSync(join(pluginRoot, ".antigravity-plugin/plugin.json"), "utf8")).version;
 const agy = { pluginRoot, version: shipped, skills, hint: FIX };
-const installedAt = (home) => join(home.dir, "config/plugins/t3-pstack");
+const installedAt = (home) => join(home.dir, "config/plugins/arq-stack");
 
 describe("Antigravity", () => {
   test("copies the plugin into the profile, where agy discovers it, and a second run changes nothing", () => {
     const home = antigravityHome();
     expect(installAntigravity(home, agy)).toEqual([`installed ${shipped}`]);
-    for (const file of ["hooks.json", ".antigravity-plugin/plugin.json", "hooks/session-start.sh", "skills/poteto-mode/SKILL.md"]) {
+    for (const file of ["hooks.json", ".antigravity-plugin/plugin.json", "hooks/session-start.sh", "skills/arq-mode/SKILL.md"]) {
       expect(readFileSync(join(installedAt(home), file))).toEqual(readFileSync(join(pluginRoot, file)));
     }
     expect(installAntigravity(home, agy)).toEqual([]);
-    expect(readdirSync(join(home.dir, "config/plugins"))).toEqual(["t3-pstack"]);
+    expect(readdirSync(join(home.dir, "config/plugins"))).toEqual(["arq-stack"]);
     expect(doctorAntigravity(home, agy)).toEqual([
       { name: "installed", ok: true, detail: shipped },
       { name: "enabled", ok: true, detail: "yes" },
@@ -710,12 +710,12 @@ describe("Antigravity", () => {
   test("replaces an older copy whole, so a file the release dropped goes with it", () => {
     const home = antigravityHome();
     installAntigravity(home, agy);
-    writeJson(join(installedAt(home), ".antigravity-plugin/plugin.json"), { name: "t3-pstack", version: "2.3.0" });
+    writeJson(join(installedAt(home), ".antigravity-plugin/plugin.json"), { name: "arq-stack", version: "2.3.0" });
     writeFileSync(join(installedAt(home), "dropped.md"), "gone in this release\n");
     expect(doctorAntigravity(home, agy)[0]).toEqual({ name: "installed", ok: false, detail: `2.3.0, expected ${shipped}`, fix: FIX });
     expect(installAntigravity(home, agy)).toEqual([`updated 2.3.0 to ${shipped}`]);
     expect(existsSync(join(installedAt(home), "dropped.md"))).toBe(false);
-    expect(readdirSync(join(home.dir, "config/plugins"))).toEqual(["t3-pstack"]);
+    expect(readdirSync(join(home.dir, "config/plugins"))).toEqual(["arq-stack"]);
   });
 
   test("reinstalls a copy whose skills are missing", () => {
@@ -734,7 +734,7 @@ describe("Antigravity", () => {
       ["hooks.json", remove],
       ["hooks/session-start.sh", remove],
       ["hooks/session-start-context.md", change],
-      ["skills/setup-pstack/scripts/read-sheet.sh", remove],
+      ["skills/setup-arq-stack/scripts/read-sheet.sh", remove],
     ]) {
       const home = antigravityHome();
       installAntigravity(home, agy);
@@ -756,14 +756,14 @@ describe("Antigravity", () => {
     const home = antigravityHome();
     installAntigravity(home, agy);
     const config = join(home.dir, "config/config.json");
-    writeJson(config, { plugins: { "t3-pstack": { enabled: false } } });
+    writeJson(config, { plugins: { "arq-stack": { enabled: false } } });
     expect(installAntigravity(home, agy)).toEqual([]);
-    expect(JSON.parse(readFileSync(config, "utf8"))).toEqual({ plugins: { "t3-pstack": { enabled: false } } });
+    expect(JSON.parse(readFileSync(config, "utf8"))).toEqual({ plugins: { "arq-stack": { enabled: false } } });
     expect(doctorAntigravity(home, agy)[1]).toEqual({
       name: "enabled",
       ok: false,
       detail: `no, ${config} turns it off`,
-      fix: 'turn t3-pstack on in that file\'s "plugins" map',
+      fix: 'turn arq-stack on in that file\'s "plugins" map',
     });
   });
 
@@ -789,7 +789,7 @@ describe("Antigravity", () => {
     expect(row(first).checks.every((c) => c.ok)).toBe(true);
     expect(row(run("update")).steps).toEqual([]);
     expect(row(run("doctor")).checks.map((c) => c.name)).toEqual(["installed", "enabled"]);
-    expect(existsSync(join(profile, "t3-pstack-models.md"))).toBe(false);
+    expect(existsSync(join(profile, "arq-stack-models.md"))).toBe(false);
   });
 
   test("reinstalls a copy whose manifest is missing", () => {
@@ -820,7 +820,7 @@ const treeState = (dir) =>
       }),
   );
 const sha256 = (text) => createHash("sha256").update(text).digest("hex");
-const RECORD = ".t3-pstack-install.json";
+const RECORD = ".arq-stack-install.json";
 
 function kiroInstaller(user, providerInstances, env = {}) {
   const bin = join(user, "bin");
@@ -837,13 +837,13 @@ function kiroInstaller(user, providerInstances, env = {}) {
     return { status: r.status, report: JSON.parse(r.stdout) };
   };
 }
-const localHint = `rerun \`npx -y github:chhoumann/t3-pstack install --source ${resolve(repoRoot)}\``;
+const localHint = `rerun \`npx -y github:Heritsam/arq-stack install --source ${resolve(repoRoot)}\``;
 
 describe("Kiro", () => {
   test("copies the plugin into the home, links each skill into the copy, writes the hook file, and a second run changes nothing", () => {
     const home = kiroHome();
-    const root = join(home.dir, "t3-pstack");
-    const hooks = join(home.dir, "hooks/t3-pstack.json");
+    const root = join(home.dir, "arq-stack");
+    const hooks = join(home.dir, "hooks/arq-stack.json");
     expect(installKiro(home, kiro)).toEqual([`installed ${shipped}`, "linked 2 skills", `wrote ${hooks}`]);
     expect(mode(home.dir)).toBe(0o700);
     for (const name of skills.keys()) {
@@ -853,7 +853,7 @@ describe("Kiro", () => {
     const command = `sh '${root}/hooks/session-start.sh' kiro '${root}'`;
     expect(JSON.parse(readFileSync(hooks, "utf8"))).toEqual({
       version: "v1",
-      hooks: ["SessionStart", "PostCompact"].map((trigger) => ({ name: "t3-pstack", trigger, timeout: 10, action: { type: "command", command } })),
+      hooks: ["SessionStart", "PostCompact"].map((trigger) => ({ name: "arq-stack", trigger, timeout: 10, action: { type: "command", command } })),
     });
     expect(installKiro(home, kiro)).toEqual([]);
     expect(doctorKiro(home, kiro)).toEqual([
@@ -872,7 +872,7 @@ describe("Kiro", () => {
     };
     for (const [make, kind, fix] of [
       [own, "your own skill", "rename your skill"],
-      [(path) => cpSync(join(pluginRoot, "skills/how"), path, { recursive: true }), "a plain copy of t3-pstack's skill", "delete the copy"],
+      [(path) => cpSync(join(pluginRoot, "skills/how"), path, { recursive: true }), "a plain copy of arq-stack's skill", "delete the copy"],
       [(path) => symlinkSync(other, path), `a link into another checkout, ${other}`, "remove the link"],
     ]) {
       const home = kiroHome();
@@ -882,9 +882,9 @@ describe("Kiro", () => {
       const before = entryState(path);
       expect(installKiro(home, kiro)).toContain("linked 1 skill");
       expect(entryState(path)).toEqual(before);
-      expect(readlinkSync(join(home.dir, "skills/why"))).toBe(join(home.dir, "t3-pstack/skills/why"));
+      expect(readlinkSync(join(home.dir, "skills/why"))).toBe(join(home.dir, "arq-stack/skills/why"));
       expect(doctorKiro(home, kiro).filter((c) => !c.ok)).toEqual([
-        { name: "skill how", ok: false, detail: `${path} is ${kind}, so t3-pstack's how cannot load`, fix: `${fix}, then ${FIX}` },
+        { name: "skill how", ok: false, detail: `${path} is ${kind}, so arq-stack's how cannot load`, fix: `${fix}, then ${FIX}` },
       ]);
     }
   });
@@ -892,7 +892,7 @@ describe("Kiro", () => {
   test("unlinks a skill the release dropped, and repoints a link at the wrong target", () => {
     const home = kiroHome();
     installKiro(home, kiro);
-    const root = join(home.dir, "t3-pstack/skills");
+    const root = join(home.dir, "arq-stack/skills");
     symlinkSync(join(root, "retired"), join(home.dir, "skills/retired"));
     rmSync(join(home.dir, "skills/how"));
     symlinkSync(join(root, "why"), join(home.dir, "skills/how"));
@@ -921,7 +921,7 @@ describe("Kiro", () => {
   test("leaves a hand-written hooks file that differs, and doctor fails it as not the installer's", () => {
     const home = kiroHome();
     installKiro(home, kiro);
-    const path = join(home.dir, "hooks/t3-pstack.json");
+    const path = join(home.dir, "hooks/arq-stack.json");
     const mine = readFileSync(path, "utf8").replace("PostCompact", "SessionEnd");
     writeFileSync(path, mine);
     expect(doctorKiro(home, kiro).at(-1)).toEqual({ name: "hook", ok: false, detail: `${path} is not a file the installer wrote`, fix: `move or delete it, then ${FIX}` });
@@ -934,7 +934,7 @@ describe("Kiro", () => {
     installKiro(home, kiro);
     const target = join(tmp(), "mine.json");
     writeFileSync(target, '{"mine":true}\n');
-    const path = join(home.dir, "hooks/t3-pstack.json");
+    const path = join(home.dir, "hooks/arq-stack.json");
     rmSync(path);
     symlinkSync(target, path);
     expect(installKiro(home, kiro)).toEqual([]);
@@ -946,11 +946,11 @@ describe("Kiro", () => {
   test("rewrites the hooks file an earlier release wrote, which that release's record names", () => {
     const home = kiroHome();
     installKiro(home, kiro);
-    const path = join(home.dir, "hooks/t3-pstack.json");
+    const path = join(home.dir, "hooks/arq-stack.json");
     const current = readFileSync(path, "utf8");
     const older = current.replace("PostCompact", "SessionEnd");
     writeFileSync(path, older);
-    const record = join(home.dir, "t3-pstack", RECORD);
+    const record = join(home.dir, "arq-stack", RECORD);
     writeJson(record, { ...JSON.parse(readFileSync(record, "utf8")), version: "2.6.0-rc.1", hooks: sha256(older) });
     expect(installKiro(home, kiro)).toEqual([`updated 2.6.0-rc.1 to ${shipped}`, `rewrote ${path}, which had changed`]);
     expect(readFileSync(path, "utf8")).toBe(current);
@@ -959,19 +959,19 @@ describe("Kiro", () => {
 
   test("leaves a clone at the copy's path whole, links and hooks nothing into it, and doctor fails it by name", () => {
     const home = kiroHome();
-    const clone = join(home.dir, "t3-pstack");
+    const clone = join(home.dir, "arq-stack");
     mkdirSync(join(clone, ".git"), { recursive: true });
     writeFileSync(join(clone, ".git/HEAD"), "ref: refs/heads/main\n");
-    writeFileSync(join(clone, "README.md"), "# my t3-pstack checkout\n");
+    writeFileSync(join(clone, "README.md"), "# my arq-stack checkout\n");
     expect(installKiro(home, kiro)).toEqual([]);
     expect(readFileSync(join(clone, ".git/HEAD"), "utf8")).toBe("ref: refs/heads/main\n");
-    expect(readFileSync(join(clone, "README.md"), "utf8")).toBe("# my t3-pstack checkout\n");
-    expect(readdirSync(home.dir)).toEqual(["t3-pstack"]);
+    expect(readFileSync(join(clone, "README.md"), "utf8")).toBe("# my arq-stack checkout\n");
+    expect(readdirSync(home.dir)).toEqual(["arq-stack"]);
     expect(doctorKiro(home, kiro)).toEqual([
       {
         name: "installed",
         ok: false,
-        detail: `${clone} is not t3-pstack's copy, since it has no ${RECORD} from the installer`,
+        detail: `${clone} is not arq-stack's copy, since it has no ${RECORD} from the installer`,
         fix: `move ${clone} out of the way, then ${FIX}`,
       },
     ]);
@@ -979,19 +979,19 @@ describe("Kiro", () => {
 
   test("leaves a hand copy of an earlier release whole, its personal file included, and doctor fails it by name", () => {
     const home = kiroHome();
-    const copy = join(home.dir, "t3-pstack");
+    const copy = join(home.dir, "arq-stack");
     cpSync(pluginRoot, copy, { recursive: true });
-    writeJson(join(copy, ".claude-plugin/plugin.json"), { name: "t3-pstack", version: "2.4.0" });
+    writeJson(join(copy, ".claude-plugin/plugin.json"), { name: "arq-stack", version: "2.4.0" });
     writeFileSync(join(copy, "my-notes.md"), "personal\n");
     const before = treeState(copy);
     expect(installKiro(home, kiro)).toEqual([]);
     expect(treeState(copy)).toEqual(before);
-    expect(readdirSync(home.dir)).toEqual(["t3-pstack"]);
+    expect(readdirSync(home.dir)).toEqual(["arq-stack"]);
     expect(doctorKiro(home, kiro)).toEqual([
       {
         name: "installed",
         ok: false,
-        detail: `${copy} is not t3-pstack's copy, since it has no ${RECORD} from the installer`,
+        detail: `${copy} is not arq-stack's copy, since it has no ${RECORD} from the installer`,
         fix: `move ${copy} out of the way, then ${FIX}`,
       },
     ]);
@@ -1000,7 +1000,7 @@ describe("Kiro", () => {
   test("leaves its own copy of an earlier release that holds a file it did not put there, and doctor names the file", () => {
     const home = kiroHome();
     installKiro(home, kiro);
-    const copy = join(home.dir, "t3-pstack");
+    const copy = join(home.dir, "arq-stack");
     for (const file of [RECORD, ".claude-plugin/plugin.json"]) {
       writeJson(join(copy, file), { ...JSON.parse(readFileSync(join(copy, file), "utf8")), version: "2.6.0-rc.1" });
     }
@@ -1021,7 +1021,7 @@ describe("Kiro", () => {
   test("reinstalls its own copy that lost its manifest, and doctor fails it until then", () => {
     const home = kiroHome();
     installKiro(home, kiro);
-    const copy = join(home.dir, "t3-pstack");
+    const copy = join(home.dir, "arq-stack");
     rmSync(join(copy, ".claude-plugin/plugin.json"));
     expect(doctorKiro(home, kiro)[0]).toEqual({ name: "installed", ok: false, detail: `${shipped}, but its files at ${copy} are missing or changed`, fix: FIX });
     expect(installKiro(home, kiro)).toEqual([`reinstalled ${shipped}, whose files were missing or changed`]);
@@ -1032,11 +1032,11 @@ describe("Kiro", () => {
   test("the hook file's commands route from a home whose path holds a space and a quote", () => {
     const home = kiroHome(join(tmp(), "it's a home"));
     installKiro(home, kiro);
-    const { hooks } = JSON.parse(readFileSync(join(home.dir, "hooks/t3-pstack.json"), "utf8"));
+    const { hooks } = JSON.parse(readFileSync(join(home.dir, "hooks/arq-stack.json"), "utf8"));
     for (const { action } of hooks) {
       const r = spawnSync("sh", ["-c", action.command], { cwd: tmp(), env: { PATH: process.env.PATH, HOME: tmp() }, encoding: "utf8" });
       expect({ status: r.status, stderr: r.stderr, routed: r.stdout.startsWith(routing) }).toEqual({ status: 0, stderr: "", routed: true });
-      expect(r.stdout).toContain(`\`<plugin root>\` is \`${join(home.dir, "t3-pstack")}\``);
+      expect(r.stdout).toContain(`\`<plugin root>\` is \`${join(home.dir, "arq-stack")}\``);
     }
   });
 
@@ -1059,14 +1059,14 @@ describe("Kiro", () => {
     expect(first).toMatchObject({
       dir: join(user, "kiro"),
       from: ["--kiro-home"],
-      steps: [`installed ${shipped}`, `linked ${shippedSkills} skills`, `wrote ${join(user, "kiro/hooks/t3-pstack.json")}`],
+      steps: [`installed ${shipped}`, `linked ${shippedSkills} skills`, `wrote ${join(user, "kiro/hooks/arq-stack.json")}`],
     });
     expect(first.checks.every((c) => c.ok)).toBe(true);
     expect(run("update").steps).toEqual([]);
     expect(run("doctor").checks).toEqual([
       { name: "installed", ok: true, detail: shipped },
       { name: "skills", ok: true, detail: `${shippedSkills} linked` },
-      { name: "hook", ok: true, detail: join(user, "kiro/hooks/t3-pstack.json") },
+      { name: "hook", ok: true, detail: join(user, "kiro/hooks/arq-stack.json") },
     ]);
   });
 
@@ -1118,7 +1118,7 @@ describe("Kiro", () => {
       });
       return JSON.parse(r.stdout).homes.find((h) => h.harness === "kiro").steps;
     };
-    const hooks = join(user, "kiro/hooks/t3-pstack.json");
+    const hooks = join(user, "kiro/hooks/arq-stack.json");
     expect(install(earlier)).toContain("installed 2.6.0-rc.1");
     const older = readFileSync(hooks, "utf8");
     expect(install(repoRoot)).toEqual([`updated 2.6.0-rc.1 to ${shipped}`, `rewrote ${hooks}, which had changed`]);
@@ -1145,7 +1145,7 @@ describe("Kiro", () => {
       },
     ]);
     expect(existsSync(join(user, ".kiro-work"))).toBe(false);
-    expect(readdirSync(user).filter((name) => ["t3-pstack", "skills", "hooks"].includes(name))).toEqual([]);
+    expect(readdirSync(user).filter((name) => ["arq-stack", "skills", "hooks"].includes(name))).toEqual([]);
   });
 
   test("the installer CLI gives a kiro instance with no KIRO_HOME of its own the one it inherits from the installer", () => {
@@ -1181,27 +1181,27 @@ describe("Kiro", () => {
   });
 });
 
-// npx installs `github:<owner>/<repo>` at <cache>/_npx/<hash>/node_modules/t3-pstack
+// npx installs `github:<owner>/<repo>` at <cache>/_npx/<hash>/node_modules/arq-stack
 // and records the spec in the package.json two levels up.
 describe("npxOrigin", () => {
   const npxCache = (spec) => {
     const dir = tmp();
-    const root = join(dir, "node_modules/t3-pstack");
+    const root = join(dir, "node_modules/arq-stack");
     mkdirSync(root, { recursive: true });
-    if (spec !== undefined) writeJson(join(dir, "package.json"), { dependencies: { "t3-pstack": spec }, _npx: { packages: [spec] } });
+    if (spec !== undefined) writeJson(join(dir, "package.json"), { dependencies: { "arq-stack": spec }, _npx: { packages: [spec] } });
     return root;
   };
 
   test("names the GitHub repository npx fetched, with or without a ref", () => {
-    expect(npxOrigin(npxCache("github:p4cs-974/t3-pstack"))).toBe("p4cs-974/t3-pstack");
-    expect(npxOrigin(npxCache("github:p4cs-974/t3-pstack#v2.5.0"))).toBe("p4cs-974/t3-pstack");
-    expect(npxOrigin(npxCache("chhoumann/t3-pstack"))).toBe("chhoumann/t3-pstack");
+    expect(npxOrigin(npxCache("github:p4cs-974/arq-stack"))).toBe("p4cs-974/arq-stack");
+    expect(npxOrigin(npxCache("github:p4cs-974/arq-stack#v2.5.0"))).toBe("p4cs-974/arq-stack");
+    expect(npxOrigin(npxCache("Heritsam/arq-stack"))).toBe("Heritsam/arq-stack");
   });
 
   test("names nothing for a checkout, a registry spec, or a cache without a record", () => {
     expect(npxOrigin(repoRoot)).toBeUndefined();
     expect(npxOrigin(npxCache("^2.4.0"))).toBeUndefined();
-    expect(npxOrigin(npxCache("git+https://example.com/x/t3-pstack.git"))).toBeUndefined();
+    expect(npxOrigin(npxCache("git+https://example.com/x/arq-stack.git"))).toBeUndefined();
     expect(npxOrigin(npxCache(undefined))).toBeUndefined();
   });
 
@@ -1210,14 +1210,14 @@ describe("npxOrigin", () => {
     const bin = join(user, "bin");
     mkdirSync(bin);
     symlinkSync(spawnSync("node", ["-p", "process.execPath"], { encoding: "utf8" }).stdout.trim(), join(bin, "node"));
-    const root = npxCache("github:someone/t3-pstack");
+    const root = npxCache("github:someone/arq-stack");
     for (const path of ["tools", "plugins"]) cpSync(join(repoRoot, path), join(root, path), { recursive: true });
     const r = spawnSync(join(bin, "node"), [join(root, "tools/install.mjs"), "doctor", "--json"], {
       cwd: user,
       env: { PATH: `${bin}:/usr/bin:/bin`, HOME: user },
       encoding: "utf8",
     });
-    expect(JSON.parse(r.stdout).source).toBe("someone/t3-pstack");
+    expect(JSON.parse(r.stdout).source).toBe("someone/arq-stack");
   });
 
   test("a fork's installer run with another --source trusts no marketplace from that fork", () => {
@@ -1228,11 +1228,11 @@ describe("npxOrigin", () => {
     const claude = fakeClaude();
     symlinkSync(claude.bin, join(bin, "claude"));
     writeJson(join(user, ".claude/settings.json"), {
-      extraKnownMarketplaces: { "t3-pstack": { source: { source: "github", repo: "someone/t3-pstack" } } },
+      extraKnownMarketplaces: { "arq-stack": { source: { source: "github", repo: "someone/arq-stack" } } },
     });
-    const root = npxCache("github:someone/t3-pstack");
+    const root = npxCache("github:someone/arq-stack");
     for (const path of ["tools", "plugins"]) cpSync(join(repoRoot, path), join(root, path), { recursive: true });
-    const r = spawnSync(join(bin, "node"), [join(root, "tools/install.mjs"), "update", "--source", "chhoumann/t3-pstack", "--json"], {
+    const r = spawnSync(join(bin, "node"), [join(root, "tools/install.mjs"), "update", "--source", "Heritsam/arq-stack", "--json"], {
       cwd: user,
       env: { PATH: `${bin}:/usr/bin:/bin`, HOME: user },
       encoding: "utf8",
@@ -1242,7 +1242,7 @@ describe("npxOrigin", () => {
     expect(JSON.parse(r.stdout).homes.find((h) => h.harness === "claude").checks[0]).toMatchObject({
       name: "marketplace",
       ok: false,
-      detail: "someone/t3-pstack, which is neither chhoumann/t3-pstack nor --source",
+      detail: "someone/arq-stack, which is neither Heritsam/arq-stack nor --source",
     });
   });
 });

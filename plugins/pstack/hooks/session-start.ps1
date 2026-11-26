@@ -6,13 +6,13 @@ $configRoot = $env:XDG_CONFIG_HOME
 if (-not $configRoot) {
     $configRoot = Join-Path $env:USERPROFILE '.config'
 }
-$sheet = Join-Path $configRoot 't3-pstack\models.md'
+$sheet = Join-Path $configRoot 'arq-stack\models.md'
 if (-not (Test-Path -LiteralPath $sheet -PathType Leaf)) {
     $sheetRoot = $env:CODEX_HOME
     if (-not $sheetRoot) {
         $sheetRoot = Join-Path $env:USERPROFILE '.codex'
     }
-    $sheet = Join-Path $sheetRoot 't3-pstack-models.md'
+    $sheet = Join-Path $sheetRoot 'arq-stack-models.md'
 }
 $off = $false
 if (Test-Path -LiteralPath $sheet -PathType Leaf) {

@@ -24,7 +24,7 @@ afterEach(() => {
 function plugin(mutate = () => {}) {
   const root = mkdtempSync(join(tmpdir(), "invariants-"));
   fixtures.push(root);
-  skill(root, "poteto-mode", "");
+  skill(root, "arq-mode", "");
   skill(root, "tdd", "disable-model-invocation: true\n");
   mutate(root);
   return root;
@@ -36,7 +36,7 @@ const check = (root) => {
 };
 
 describe("static plugin invariants", () => {
-  test("a clean tree passes, with upstream's manual-only flag on every skill but poteto-mode", () => {
+  test("a clean tree passes, with upstream's manual-only flag on every skill but arq-mode", () => {
     expect(() => check(plugin())).not.toThrow();
   });
 
@@ -50,16 +50,16 @@ describe("static plugin invariants", () => {
     expect(() => check(root)).toThrow("plugins/pstack/plugin.json exists; Codex would truncate every injected SKILL.md");
   });
 
-  test("disable-model-invocation on poteto-mode fails and names the file", () => {
-    const root = plugin((r) => skill(r, "poteto-mode", "disable-model-invocation: true\n"));
+  test("disable-model-invocation on arq-mode fails and names the file", () => {
+    const root = plugin((r) => skill(r, "arq-mode", "disable-model-invocation: true\n"));
     expect(() => check(root)).toThrow(
-      /skills\/poteto-mode\/SKILL\.md: disable-model-invocation: true stops the session-start hook from invoking poteto-mode/,
+      /skills\/arq-mode\/SKILL\.md: disable-model-invocation: true stops the session-start hook from invoking arq-mode/,
     );
   });
 
-  test("a tree without poteto-mode fails", () => {
-    const root = plugin((r) => rmSync(join(r, "skills", "poteto-mode"), { recursive: true }));
-    expect(() => check(root)).toThrow("plugins/pstack/skills has no poteto-mode skill");
+  test("a tree without arq-mode fails", () => {
+    const root = plugin((r) => rmSync(join(r, "skills", "arq-mode"), { recursive: true }));
+    expect(() => check(root)).toThrow("plugins/pstack/skills has no arq-mode skill");
   });
 
   test("a skill whose name is not its directory fails", () => {
@@ -83,11 +83,11 @@ describe("static plugin invariants", () => {
     );
   });
 
-  test("the body of poteto-mode may mention the flag in prose", () => {
+  test("the body of arq-mode may mention the flag in prose", () => {
     const root = plugin();
     writeFileSync(
-      join(root, "skills/poteto-mode/SKILL.md"),
-      "---\nname: poteto-mode\ndescription: fixture\n---\n\nNever set disable-model-invocation: true on this skill.\n",
+      join(root, "skills/arq-mode/SKILL.md"),
+      "---\nname: arq-mode\ndescription: fixture\n---\n\nNever set disable-model-invocation: true on this skill.\n",
     );
     expect(() => check(root)).not.toThrow();
   });

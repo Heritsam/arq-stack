@@ -1,6 +1,6 @@
 // The installer end to end, with the real claude and codex CLIs, in a
 // throwaway HOME that T3's settings file describes. Opt in with
-// T3_PSTACK_E2E=1; it needs both CLIs and takes about a minute, and its Kiro
+// ARQ_STACK_E2E=1; it needs both CLIs and takes about a minute, and its Kiro
 // suite runs when kiro-cli is on PATH. This checkout is the marketplace
 // source. The Codex probe turn has no credentials, so it fails at the model
 // call, after the session-start hook has run.
@@ -30,7 +30,7 @@ import { hookDigest } from "../tools/plugin.mjs";
 
 const repoRoot = fileURLToPath(new URL("..", import.meta.url));
 const version = JSON.parse(readFileSync(join(repoRoot, "plugins/pstack/.claude-plugin/plugin.json"), "utf8")).version;
-const ROUTING = "You have t3-pstack, pstack for T3 Code.";
+const ROUTING = "You have arq-stack, pstack for T3 Code.";
 const SHEET = "# budget: large (xhigh)\nbug-fix: inherit-parent\nsession hook: on\n";
 
 let root;
@@ -56,7 +56,7 @@ function installer(command, source = repoRoot, ...args) {
 
 const row = (report, dir) => report.homes.find((h) => h.dir === join(home, dir));
 const failing = (checks) => checks.filter((c) => !c.ok && !c.warn).map((c) => `${c.name}: ${c.detail}`);
-const HOOK = "t3-pstack@t3-pstack:hooks/codex-hooks.json:session_start:0:0";
+const HOOK = "arq-stack@arq-stack:hooks/codex-hooks.json:session_start:0:0";
 
 // The plugin as a marketplace of its own, outside this checkout.
 function pluginCopy(dir) {
@@ -120,12 +120,12 @@ function snapshot() {
   return out;
 }
 
-const enabled = process.env.T3_PSTACK_E2E === "1";
+const enabled = process.env.ARQ_STACK_E2E === "1";
 
 // A fresh HOME per suite, with T3's settings listing `providerInstances`.
 function isolate(providerInstances) {
   beforeAll(() => {
-    root = realpathSync(mkdtempSync(join(tmpdir(), "t3-pstack-e2e-")));
+    root = realpathSync(mkdtempSync(join(tmpdir(), "arq-stack-e2e-")));
     home = join(root, "home");
     for (const name of ISOLATED) saved[name] = process.env[name];
     for (const name of ISOLATED) delete process.env[name];
@@ -156,22 +156,22 @@ describe.skipIf(!enabled)("the installer, end to end", () => {
     const codexHome = join(home, ".codex");
     mkdirSync(codexHome, { recursive: true });
     sh("codex", ["plugin", "marketplace", "add", repoRoot], { CODEX_HOME: codexHome });
-    sh("codex", ["plugin", "add", "t3-pstack@t3-pstack"], { CODEX_HOME: codexHome });
+    sh("codex", ["plugin", "add", "arq-stack@arq-stack"], { CODEX_HOME: codexHome });
     mkdirSync(join(home, ".claude"), { recursive: true });
-    writeFileSync(join(home, ".claude/t3-pstack-models.md"), SHEET);
-    symlinkSync(join(home, ".claude/t3-pstack-models.md"), join(codexHome, "t3-pstack-models.md"));
+    writeFileSync(join(home, ".claude/arq-stack-models.md"), SHEET);
+    symlinkSync(join(home, ".claude/arq-stack-models.md"), join(codexHome, "arq-stack-models.md"));
 
     // A second Claude home with a stale project-scope record for the home folder.
     const pool = join(home, ".claude-pool");
     mkdirSync(pool, { recursive: true });
     sh("claude", ["plugin", "marketplace", "add", repoRoot], { CLAUDE_CONFIG_DIR: pool });
-    sh("claude", ["plugin", "install", "t3-pstack@t3-pstack", "--scope", "user"], { CLAUDE_CONFIG_DIR: pool });
+    sh("claude", ["plugin", "install", "arq-stack@arq-stack", "--scope", "user"], { CLAUDE_CONFIG_DIR: pool });
     const recordsPath = join(pool, "plugins/installed_plugins.json");
     const records = JSON.parse(readFileSync(recordsPath, "utf8"));
-    records.plugins["t3-pstack@t3-pstack"].push({
+    records.plugins["arq-stack@arq-stack"].push({
       scope: "project",
       projectPath: home,
-      installPath: join(pool, "plugins/cache/t3-pstack/t3-pstack/1.0.11"),
+      installPath: join(pool, "plugins/cache/arq-stack/arq-stack/1.0.11"),
       version: "1.0.11",
       installedAt: "2026-10-13T04:43:26.759Z",
       lastUpdated: "2026-10-13T04:43:26.759Z",
@@ -193,7 +193,7 @@ describe.skipIf(!enabled)("the installer, end to end", () => {
     ]);
     expect(failing(row(report, ".codex-work").checks)).toEqual(["installed: the home does not exist"]);
     expect(failing(report.sheet.checks)).toEqual([
-      `machine sheet: missing; ${join(home, ".claude/t3-pstack-models.md")}, ${join(home, ".codex/t3-pstack-models.md")} not moved yet`,
+      `machine sheet: missing; ${join(home, ".claude/arq-stack-models.md")}, ${join(home, ".codex/arq-stack-models.md")} not moved yet`,
     ]);
   }, 300_000);
 
@@ -206,7 +206,7 @@ describe.skipIf(!enabled)("the installer, end to end", () => {
       `trusted hook ${HOOK} (was untrusted)`,
     ]);
     expect(row(report, ".codex-work").steps).toEqual([
-      `added the t3-pstack marketplace from ${repoRoot.replace(/\/$/, "")}`,
+      `added the arq-stack marketplace from ${repoRoot.replace(/\/$/, "")}`,
       `installed ${version}`,
       `trusted hook ${HOOK} (was untrusted)`,
     ]);
@@ -214,12 +214,12 @@ describe.skipIf(!enabled)("the installer, end to end", () => {
     expect(pool[0]).toBe(`moved the project-scope record for ${home} from 1.0.11 to ${version}`);
     expect(pool[1]).toStartWith("backed up plugins/installed_plugins.json to ");
     expect(report.sheet.steps).toEqual([
-      `moved the sheet from ${join(home, ".claude/t3-pstack-models.md")}`,
-      `linked ${join(home, ".claude/t3-pstack-models.md")} to it`,
-      `linked ${join(home, ".claude-pool/t3-pstack-models.md")} to it`,
-      `linked ${join(home, ".codex-work/t3-pstack-models.md")} to it`,
+      `moved the sheet from ${join(home, ".claude/arq-stack-models.md")}`,
+      `linked ${join(home, ".claude/arq-stack-models.md")} to it`,
+      `linked ${join(home, ".claude-pool/arq-stack-models.md")} to it`,
+      `linked ${join(home, ".codex-work/arq-stack-models.md")} to it`,
     ]);
-    expect(readFileSync(join(home, ".config/t3-pstack/models.md"), "utf8")).toBe(SHEET);
+    expect(readFileSync(join(home, ".config/arq-stack/models.md"), "utf8")).toBe(SHEET);
 
     const after = await probe(join(home, ".codex"));
     console.log("after:", JSON.stringify(after));
@@ -259,11 +259,11 @@ describe.skipIf(!enabled)("the installer, end to end", () => {
   }, 300_000);
 
   test("install reinstalls a plugin whose files are gone, and enables a disabled one", () => {
-    const codexCache = join(home, ".codex/plugins/cache/t3-pstack/t3-pstack", version);
+    const codexCache = join(home, ".codex/plugins/cache/arq-stack/arq-stack", version);
     rmSync(join(codexCache, "skills/how"), { recursive: true });
-    const poolRecord = JSON.parse(readFileSync(join(home, ".claude-pool/plugins/installed_plugins.json"), "utf8")).plugins["t3-pstack@t3-pstack"][0];
+    const poolRecord = JSON.parse(readFileSync(join(home, ".claude-pool/plugins/installed_plugins.json"), "utf8")).plugins["arq-stack@arq-stack"][0];
     rmSync(poolRecord.installPath, { recursive: true });
-    edit(join(home, ".codex-work/config.toml"), /(\[plugins\."t3-pstack@t3-pstack"\]\s*enabled = )true/, "$1false");
+    edit(join(home, ".codex-work/config.toml"), /(\[plugins\."arq-stack@arq-stack"\]\s*enabled = )true/, "$1false");
 
     // Codex trusts the hook with a hash of every file in the plugin, so the
     // deleted skill takes the trust with it until the files are back.
@@ -275,7 +275,7 @@ describe.skipIf(!enabled)("the installer, end to end", () => {
     expect(failing(row(doctor, ".claude-pool").checks)).toEqual([
       `installed: ${version}, but its files at ${poolRecord.installPath} are missing`,
     ]);
-    expect(failing(row(doctor, ".codex-work").checks)).toEqual(["enabled: no", "session-start hook trusted: no t3-pstack hook listed"]);
+    expect(failing(row(doctor, ".codex-work").checks)).toEqual(["enabled: no", "session-start hook trusted: no arq-stack hook listed"]);
 
     const { status, report } = installer("install");
     expect(row(report, ".codex").steps).toEqual([`reinstalled ${version}, whose files were missing`]);
@@ -296,11 +296,11 @@ describe.skipIf(!enabled)("the installer, end to end", () => {
     expect(installer("doctor").status).toBe(0);
   }, 300_000);
 
-  test("a poteto-mode script leaves the installed plugin as released, so the hook still routes", async () => {
-    const plugin = join(home, ".codex/plugins/cache/t3-pstack/t3-pstack", version);
+  test("a arq-mode script leaves the installed plugin as released, so the hook still routes", async () => {
+    const plugin = join(home, ".codex/plugins/cache/arq-stack/arq-stack", version);
     const files = () => readdirSync(plugin, { recursive: true }).sort();
     const before = files();
-    const watch = spawnSync(join(plugin, "skills/poteto-mode/scripts/watch-pr/watch-pr"), ["--help"], { cwd: root, encoding: "utf8" });
+    const watch = spawnSync(join(plugin, "skills/arq-mode/scripts/watch-pr/watch-pr"), ["--help"], { cwd: root, encoding: "utf8" });
     expect(watch.status, watch.stderr).toBe(0);
     expect(watch.stdout).toStartWith("Usage: watch-pr");
     expect(files()).toEqual(before);
@@ -312,7 +312,7 @@ describe.skipIf(!enabled)("the installer, end to end", () => {
   }, 300_000);
 });
 
-describe.skipIf(!enabled)("the installer, on a t3-pstack marketplace from another source", () => {
+describe.skipIf(!enabled)("the installer, on a arq-stack marketplace from another source", () => {
   isolate({
     claudeAgent: { driver: "claudeAgent", enabled: true, config: { binaryPath: "claude", homePath: "" } },
     codex: { driver: "codex", enabled: true, config: { binaryPath: "codex", homePath: "" } },
@@ -320,7 +320,7 @@ describe.skipIf(!enabled)("the installer, on a t3-pstack marketplace from anothe
   });
 
   test("installs nothing from it, trusts none of its hooks, and doctor names the source", async () => {
-    // A marketplace that calls itself t3-pstack, with a hook that leaves a mark.
+    // A marketplace that calls itself arq-stack, with a hook that leaves a mark.
     const counterfeit = pluginCopy(join(root, "counterfeit"));
     const marked = join(root, "hook-ran");
     edit(join(counterfeit, "plugins/pstack/hooks/codex-hooks.json"), /"command": "[^\n]*",\n/, `"command": "touch ${marked}",\n`);
@@ -328,20 +328,20 @@ describe.skipIf(!enabled)("the installer, on a t3-pstack marketplace from anothe
       mkdirSync(join(home, dir), { recursive: true });
       sh(bin, ["plugin", "marketplace", "add", counterfeit], { [variable]: join(home, dir) });
     }
-    sh("codex", ["plugin", "add", "t3-pstack@t3-pstack"], { CODEX_HOME: join(home, ".codex") });
+    sh("codex", ["plugin", "add", "arq-stack@arq-stack"], { CODEX_HOME: join(home, ".codex") });
 
     const { status, report } = installer("install");
     expect(status).toBe(1);
     expect(row(report, ".codex").steps).toEqual([]);
     expect(row(report, ".claude").steps).toEqual([]);
-    const foreign = `marketplace: ${counterfeit}, which is neither chhoumann/t3-pstack nor --source`;
+    const foreign = `marketplace: ${counterfeit}, which is neither Heritsam/arq-stack nor --source`;
     expect(failing(row(report, ".codex").checks)).toEqual([
       foreign,
       `session-start hook trusted: ${HOOK} untrusted, not from the hooks/codex-hooks.json this release pins`,
     ]);
     expect(failing(row(report, ".claude").checks)).toEqual([foreign, "installed: not installed", "enabled: no"]);
     expect(row(report, ".codex-dev").steps).toEqual([
-      `added the t3-pstack marketplace from ${repoRoot.replace(/\/$/, "")}`,
+      `added the arq-stack marketplace from ${repoRoot.replace(/\/$/, "")}`,
       `installed ${version}`,
       `trusted hook ${HOOK} (was untrusted)`,
     ]);
@@ -357,7 +357,7 @@ describe.skipIf(!enabled)("the installer, on a t3-pstack marketplace from anothe
     expect(status).toBe(1);
     expect(report.homes.flatMap((h) => h.steps)).toEqual([]);
     expect(failing(row(report, ".codex-dev").checks)).toEqual([
-      `marketplace: ${repoRoot.replace(/\/$/, "")}, which is neither chhoumann/t3-pstack nor --source`,
+      `marketplace: ${repoRoot.replace(/\/$/, "")}, which is neither Heritsam/arq-stack nor --source`,
     ]);
     expect(snapshot()).toEqual(before);
   }, 300_000);
@@ -413,11 +413,11 @@ describe.skipIf(!enabled)("the installer, on Git marketplaces", () => {
   const tag = `v${version}`;
   const PINNED = [".codex", ".codex-unpinned", ".codex-old"];
   let origin;
-  const git = (...args) => sh("git", ["-C", origin, "-c", "user.name=t3-pstack", "-c", "user.email=t3-pstack@example.test", ...args]);
+  const git = (...args) => sh("git", ["-C", origin, "-c", "user.name=arq-stack", "-c", "user.email=arq-stack@example.test", ...args]);
   const codex = (dir, ...args) => sh("codex", args, { CODEX_HOME: join(home, dir) });
-  const marketplace = (dir) => readFileSync(join(home, dir, "config.toml"), "utf8").match(/\[marketplaces\.t3-pstack\]\n[^[]*/)?.[0].trimEnd();
-  const pinned = (source) => `[marketplaces.t3-pstack]\nsource_type = "git"\nsource = "${source}"\nref = "${tag}"`;
-  const cached = (dir) => readdirSync(join(home, dir, "plugins/cache/t3-pstack/t3-pstack")).filter((name) => !name.startsWith("."));
+  const marketplace = (dir) => readFileSync(join(home, dir, "config.toml"), "utf8").match(/\[marketplaces\.arq-stack\]\n[^[]*/)?.[0].trimEnd();
+  const pinned = (source) => `[marketplaces.arq-stack]\nsource_type = "git"\nsource = "${source}"\nref = "${tag}"`;
+  const cached = (dir) => readdirSync(join(home, dir, "plugins/cache/arq-stack/arq-stack")).filter((name) => !name.startsWith("."));
   const pin = (report, dir) => row(report, dir).checks.find((c) => c.name === "marketplace pin");
 
   beforeAll(() => {
@@ -439,8 +439,8 @@ describe.skipIf(!enabled)("the installer, on Git marketplaces", () => {
     sh("git", ["clone", "-q", "--no-tags", origin, untagged]);
     const urls = [
       [origin, `https://github.com/${HOME_REPO}.git`],
-      [origin, "https://github.com/someone/t3-pstack.git"],
-      [origin, "https://git.example.test/t3-pstack.git"],
+      [origin, "https://github.com/someone/arq-stack.git"],
+      [origin, "https://git.example.test/arq-stack.git"],
       [untagged, "https://github.com/someone/untagged.git"],
     ];
     writeFileSync(join(root, "gitconfig"), urls.map(([dir, url]) => `[url "file://${dir}"]\n\tinsteadOf = ${url}\n`).join(""));
@@ -471,7 +471,7 @@ describe.skipIf(!enabled)("the installer, on Git marketplaces", () => {
       `installed: 0.0.1, expected ${version}`,
       `session-start hook trusted: ${HOOK} untrusted`,
     ]);
-    expect(pin(report, ".codex-unpinned").fix).toBe("rerun `npx -y github:chhoumann/t3-pstack install`");
+    expect(pin(report, ".codex-unpinned").fix).toBe("rerun `npx -y github:Heritsam/arq-stack install`");
   }, 300_000);
 
   test("install pins every Codex home to the release tag, and the hook routes", async () => {
@@ -481,7 +481,7 @@ describe.skipIf(!enabled)("the installer, on Git marketplaces", () => {
     expect(status).toBe(0);
     const trustedHook = `trusted hook ${HOOK} (was untrusted)`;
     expect(row(report, ".codex").steps).toEqual([
-      `added the t3-pstack marketplace from ${HOME_REPO}`,
+      `added the arq-stack marketplace from ${HOME_REPO}`,
       `pinned the marketplace to ${tag} (was unpinned)`,
       `installed ${version}`,
       trustedHook,
@@ -507,13 +507,13 @@ describe.skipIf(!enabled)("the installer, on Git marketplaces", () => {
   test("pins a GitHub or Git URL --source too, leaves a local directory unpinned, and leaves a source without the tag as it was", () => {
     const run = (source, dir) => installer("install", source, "--codex-home", join(home, dir));
     for (const [source, dir, url] of [
-      ["someone/t3-pstack", ".codex-fork", "https://github.com/someone/t3-pstack.git"],
-      ["https://git.example.test/t3-pstack.git", ".codex-url", "https://git.example.test/t3-pstack.git"],
+      ["someone/arq-stack", ".codex-fork", "https://github.com/someone/arq-stack.git"],
+      ["https://git.example.test/arq-stack.git", ".codex-url", "https://git.example.test/arq-stack.git"],
     ]) {
       const { status, report } = run(source, dir);
       expect(status).toBe(0);
       expect(row(report, dir).steps).toEqual([
-        `added the t3-pstack marketplace from ${source}`,
+        `added the arq-stack marketplace from ${source}`,
         `pinned the marketplace to ${tag} (was unpinned)`,
         `installed ${version}`,
         `trusted hook ${HOOK} (was untrusted)`,
@@ -525,21 +525,21 @@ describe.skipIf(!enabled)("the installer, on Git marketplaces", () => {
     const local = pluginCopy(join(root, "local"));
     const fromDir = run(local, ".codex-local");
     expect(fromDir.status).toBe(0);
-    expect(row(fromDir.report, ".codex-local").steps).toEqual([`added the t3-pstack marketplace from ${local}`, `installed ${version}`, `trusted hook ${HOOK} (was untrusted)`]);
+    expect(row(fromDir.report, ".codex-local").steps).toEqual([`added the arq-stack marketplace from ${local}`, `installed ${version}`, `trusted hook ${HOOK} (was untrusted)`]);
     expect(pin(fromDir.report, ".codex-local")).toEqual({ name: "marketplace pin", ok: true, detail: "none, since a local directory has no tag" });
-    expect(marketplace(".codex-local")).toBe(`[marketplaces.t3-pstack]\nsource_type = "local"\nsource = "${local}"`);
+    expect(marketplace(".codex-local")).toBe(`[marketplaces.arq-stack]\nsource_type = "local"\nsource = "${local}"`);
 
     const untagged = run("someone/untagged", ".codex-untagged");
     expect(untagged.status).toBe(1);
     const steps = row(untagged.report, ".codex-untagged").steps;
     expect(steps[1]).toStartWith(`Codex could not fetch ${tag}, so the marketplace stays unpinned (`);
     expect(steps.filter((_, i) => i !== 1)).toEqual([
-      "added the t3-pstack marketplace from someone/untagged",
+      "added the arq-stack marketplace from someone/untagged",
       `installed ${version}`,
       `trusted hook ${HOOK} (was untrusted)`,
     ]);
     expect(failing(row(untagged.report, ".codex-untagged").checks)).toEqual([`marketplace pin: none, expected ${tag}`]);
-    expect(marketplace(".codex-untagged")).toBe('[marketplaces.t3-pstack]\nsource_type = "git"\nsource = "https://github.com/someone/untagged.git"');
+    expect(marketplace(".codex-untagged")).toBe('[marketplaces.arq-stack]\nsource_type = "git"\nsource = "https://github.com/someone/untagged.git"');
   }, 300_000);
 
   test("a newer commit on main reaches only a home without the pin, through Codex's own upgrade", async () => {
@@ -581,7 +581,7 @@ describe.skipIf(!enabled)("the installer, on Git marketplaces", () => {
 describe.skipIf(!enabled)("the installer, on a Codex home that changes while it trusts the hook", () => {
   isolate({});
   const path = process.env.PATH;
-  const hooksFile = () => join(home, ".codex/plugins/cache/t3-pstack/t3-pstack", version, "hooks/codex-hooks.json");
+  const hooksFile = () => join(home, ".codex/plugins/cache/arq-stack/arq-stack", version, "hooks/codex-hooks.json");
   const configFile = () => join(home, ".codex/config.toml");
   const attack = (at, files) => writeFileSync(process.env.CODEX_ATTACK, JSON.stringify({ at, files }));
   let genuine;
@@ -636,7 +636,7 @@ describe.skipIf(!enabled)("the installer, on a Codex home that changes while it 
     expect(status).toBe(1);
     expect(row(report, ".codex").steps).toEqual([]);
     expect(failing(row(report, ".codex").checks)).toEqual([
-      `session-start hook trusted: no t3-pstack hook listed; Codex: skipping plugin hook in ${hooksFile()}: ` +
+      `session-start hook trusted: no arq-stack hook listed; Codex: skipping plugin hook in ${hooksFile()}: ` +
         `failed to fingerprint plugin contents: unsupported plugin entry type: ${hooksFile()}`,
     ]);
     expect(await trustState()).toBe(null);
@@ -716,7 +716,7 @@ describe.skipIf(!enabled || !resolveCli("kiro-cli"))("the installer, on a Kiro h
     expect(kiroRow(report)).toMatchObject({
       dir: join(home, ".kiro"),
       from: ["T3 instance kiro"],
-      steps: [`installed ${version}`, `linked ${skills.length} skills`, `wrote ${join(home, ".kiro/hooks/t3-pstack.json")}`],
+      steps: [`installed ${version}`, `linked ${skills.length} skills`, `wrote ${join(home, ".kiro/hooks/arq-stack.json")}`],
     });
     expect(kiroRow(report).checks.filter((c) => !c.ok).map((c) => ({ name: c.name, warn: c.warn, detail: c.detail }))).toEqual([
       { name: "KIRO_HOME", warn: true, detail: `Kiro reads this home, since it ignores "${instanceKiroHome}" from T3 instance kiro` },
@@ -738,7 +738,7 @@ describe.skipIf(!enabled || !resolveCli("kiro-cli"))("the installer, on a Kiro h
   async function kiroSession(kiroHome) {
     const child = spawn(kiroCli, ["acp", "--agent-engine=v3", "--auth-method=cli"], {
       cwd: root,
-      env: { ...process.env, KIRO_HOME: kiroHome, KIRO_API_KEY: "t3-pstack-e2e" },
+      env: { ...process.env, KIRO_HOME: kiroHome, KIRO_API_KEY: "arq-stack-e2e" },
       stdio: ["pipe", "pipe", "ignore"],
     });
     const exited = new Promise((resolve) => child.once("exit", resolve));
@@ -790,7 +790,7 @@ describe.skipIf(!enabled || !resolveCli("kiro-cli"))("the installer, on a Kiro h
     const kiroHome = join(home, ".kiro");
     const { listed, hooks } = await kiroSession(instanceKiroHome);
     expect(skills.filter((name) => !listed.has(name))).toEqual([]);
-    const ours = hooks.filter((hook) => hook._meta?.filePath === join(kiroHome, "hooks/t3-pstack.json"));
+    const ours = hooks.filter((hook) => hook._meta?.filePath === join(kiroHome, "hooks/arq-stack.json"));
     expect(ours.map(({ action, _meta }) => ({ type: action.type, trigger: _meta.trigger, enabled: _meta.enabled, standing: _meta.kiro?.resource?.standing?.kind }))).toEqual(
       ["SessionStart", "PostCompact"].map((trigger) => ({ type: "runCommand", trigger, enabled: true, standing: "active" })),
     );
@@ -799,7 +799,7 @@ describe.skipIf(!enabled || !resolveCli("kiro-cli"))("the installer, on a Kiro h
     for (const { action } of ours) {
       const r = spawnSync("sh", ["-c", action.command], { cwd: root, env: process.env, encoding: "utf8" });
       expect({ status: r.status, stderr: r.stderr, routed: r.stdout.includes(ROUTING) }).toEqual({ status: 0, stderr: "", routed: true });
-      expect(r.stdout).toContain(`\`<plugin root>\` is \`${join(kiroHome, "t3-pstack")}\``);
+      expect(r.stdout).toContain(`\`<plugin root>\` is \`${join(kiroHome, "arq-stack")}\``);
     }
     console.log("kiro:", JSON.stringify({ skillsListed: listed.size, hooks: ours.map(({ _meta }) => _meta.trigger) }));
   }, 300_000);

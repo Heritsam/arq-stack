@@ -11,10 +11,10 @@ import { join } from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { loadModels } from "../tools/generate.mjs";
-import { checkSheet, family, parseEntry, parseSheet } from "../plugins/pstack/skills/setup-pstack/scripts/t3-sheet.mjs";
+import { checkSheet, family, parseEntry, parseSheet } from "../plugins/pstack/skills/setup-arq-stack/scripts/t3-sheet.mjs";
 
 const root = fileURLToPath(new URL("..", import.meta.url));
-const script = join(root, "plugins/pstack/skills/setup-pstack/scripts/t3-sheet.mjs");
+const script = join(root, "plugins/pstack/skills/setup-arq-stack/scripts/t3-sheet.mjs");
 const catalogPath = join(root, "tests/fixtures/t3-catalog.json");
 const catalog = JSON.parse(readFileSync(catalogPath, "utf8"));
 const { roles, tiers: defaults, retired } = loadModels();
@@ -84,8 +84,8 @@ describe("checkSheet without a catalog", () => {
 });
 
 describe("checkSheet against a catalog", () => {
-  test("the default sheet setup-pstack writes dispatches", () => {
-    const setup = readFileSync(join(root, "plugins/pstack/skills/setup-pstack/SKILL.md"), "utf8");
+  test("the default sheet setup-arq-stack writes dispatches", () => {
+    const setup = readFileSync(join(root, "plugins/pstack/skills/setup-arq-stack/SKILL.md"), "utf8");
     const sheet = setup.match(/```markdown\n(# pstack model configuration \(T3\)[\s\S]*?)```/)[1];
     expect(parseSheet(sheet)).toHaveLength(roles.length + 1);
     expect(check(sheet)).toEqual([]);
@@ -243,7 +243,7 @@ describe("checkSheet against a catalog", () => {
     ]);
   });
 
-  // 2.3.0 retired the how and why roles. Every sheet setup-pstack wrote before
+  // 2.3.0 retired the how and why roles. Every sheet setup-arq-stack wrote before
   // that carries their four lines, which no skill reads now.
   test("a sheet written before the how and why roles retired still passes", () => {
     const released = [
@@ -264,9 +264,9 @@ describe("checkSheet against a catalog", () => {
 
   // 2.4.0 retired hardest tasks (strongest judgment before upstream's 0.15.21),
   // the two reflect roles, and architect runners, with pstack 0.15.43. Every
-  // sheet setup-pstack wrote before that carries their lines. 2.3.0 also wrote
+  // sheet setup-arq-stack wrote before that carries their lines. 2.3.0 also wrote
   // Antigravity 1.4's `thinking_level`, which Antigravity 1.5 renamed
-  // `thought_level`, so only that live line fails until /setup-pstack reruns.
+  // `thought_level`, so only that live line fails until /setup-arq-stack reruns.
   test("a sheet written by 2.3.0 passes the lines of the roles 2.4.0 retired", () => {
     const released = [
       "# defaults: 2",
@@ -331,7 +331,7 @@ describe("the T3 session-start context", () => {
       env: { PATH: process.env.PATH, HOME: home, CLAUDE_PLUGIN_ROOT: pluginRoot, GIT_CONFIG_GLOBAL: "/dev/null" },
     });
     expect(result.status).toBe(0);
-    for (const phrase of ["t3-pstack:poteto-mode", "t3-pstack-models.md", "delegate_task"]) {
+    for (const phrase of ["arq-stack:arq-mode", "arq-stack-models.md", "delegate_task"]) {
       expect(result.stdout).toContain(phrase);
     }
   });

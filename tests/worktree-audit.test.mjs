@@ -8,7 +8,7 @@ import { fileURLToPath } from "node:url";
 import { validatePluginLayout } from "../tools/generate.mjs";
 
 const audit = fileURLToPath(
-  new URL("../plugins/pstack/skills/poteto-mode/scripts/worktree-audit.sh", import.meta.url),
+  new URL("../plugins/pstack/skills/arq-mode/scripts/worktree-audit.sh", import.meta.url),
 );
 const pluginRoot = fileURLToPath(new URL("../plugins/pstack", import.meta.url));
 const TOOLS = ["git", "jq", "du", "awk", "sort", "date", "mktemp", "grep", "head", "rm", "xargs", "stat"];
@@ -329,9 +329,9 @@ test("the audit writes nothing to the repository unless --fetch is given", () =>
 test("the generator check rejects a playbook that force-removes a worktree or deletes one by hand", () => {
   const root = mkdtempSync(join(tmpdir(), "worktree-playbook-"));
   roots.push(root);
-  const playbooks = join(root, "skills/poteto-mode/playbooks");
+  const playbooks = join(root, "skills/arq-mode/playbooks");
   mkdirSync(playbooks, { recursive: true });
-  writeFileSync(join(root, "skills/poteto-mode/SKILL.md"), "---\nname: poteto-mode\n---\n");
+  writeFileSync(join(root, "skills/arq-mode/SKILL.md"), "---\nname: arq-mode\n---\n");
   writeFileSync(
     join(playbooks, "worktree-cleanup.md"),
     [

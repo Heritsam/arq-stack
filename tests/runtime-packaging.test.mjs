@@ -68,7 +68,7 @@ describe("manifests", () => {
   test("there is no root Agent Plugins manifest", () => {
     expect(
       existsSync(join(repoRoot, "plugins/pstack/plugin.json")),
-      "delete plugins/pstack/plugin.json: Codex reads a plugin with that Agent Plugins manifest as an Agent Plugin and truncates each injected SKILL.md to 8,000 bytes, which cuts poteto-mode off mid-file",
+      "delete plugins/pstack/plugin.json: Codex reads a plugin with that Agent Plugins manifest as an Agent Plugin and truncates each injected SKILL.md to 8,000 bytes, which cuts arq-mode off mid-file",
     ).toBe(false);
   });
 });
@@ -174,7 +174,7 @@ describe("validateHooks", () => {
 
 
 describe("validateAntigravityHooks", () => {
-  const file = (spec) => JSON.stringify({ "t3-pstack": spec });
+  const file = (spec) => JSON.stringify({ "arq-stack": spec });
   const run = { type: "command", command: "sh ./hooks/session-start.sh antigravity" };
 
   test("passes the shipped file", () => {
@@ -184,7 +184,7 @@ describe("validateAntigravityHooks", () => {
 
   test("faults a script missing from the plugin", () => {
     expect(() => validateAntigravityHooks(file({ SessionStart: [run] }), { statOf: () => null })).toThrow(
-      "t3-pstack: hooks/session-start.sh does not exist in the plugin",
+      "arq-stack: hooks/session-start.sh does not exist in the plugin",
     );
   });
 

@@ -13,11 +13,11 @@
     ]
   },
   "roles": [
-    { "role": "feature, refactoring", "tier": "default", "skill": "poteto-mode" },
-    { "role": "bug-fix", "tier": "default", "skill": "poteto-mode" },
-    { "role": "perf-issue", "tier": "default", "skill": "poteto-mode" },
-    { "role": "hillclimb", "tier": "default", "skill": "poteto-mode" },
-    { "role": "judgment and prose", "tier": "default", "skill": "poteto-mode" },
+    { "role": "feature, refactoring", "tier": "default", "skill": "arq-mode" },
+    { "role": "bug-fix", "tier": "default", "skill": "arq-mode" },
+    { "role": "perf-issue", "tier": "default", "skill": "arq-mode" },
+    { "role": "hillclimb", "tier": "default", "skill": "arq-mode" },
+    { "role": "judgment and prose", "tier": "default", "skill": "arq-mode" },
     { "role": "arena runners", "tier": "panel", "skill": "arena" },
     { "role": "arena cross-judge pool", "tier": "judges", "skill": "arena" },
     { "role": "swarm workers", "tier": "fast", "skill": "swarm" },
