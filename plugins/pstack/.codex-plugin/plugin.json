@@ -1,6 +1,6 @@
 {
   "name": "arq-stack",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "description": "pstack for T3 Code on a Codex host: Lauren Tan's pstack with its Cursor mechanics rewritten in place for T3, so subagents, panels, schedules, and PR watches dispatch through T3's orchestration.",
   "author": {
     "name": "Heritsam",
@@ -30,7 +30,7 @@
   "interface": {
     "displayName": "arq-stack",
     "shortDescription": "Rigorous, parallelizable agent workflows: go deep first, write less, verify everything",
-    "longDescription": "pstack for T3 Code: arq-mode's principles, parallel design exploration (arena), adversarial multi-model review (interrogate), and verified delivery, with every panel and fan-out dispatched through T3 so it mixes Claude, Gemini, GPT, and Grok.",
+    "longDescription": "pstack for T3 Code: arq-mode's principles, adversarial multi-model review (interrogate), and verified delivery, with at most two subagents per task, dispatched through T3.",
     "developerName": "Christian Bager Bach Houmann (a port of Lauren Tan's pstack)",
     "category": "Developer Tools",
     "capabilities": [

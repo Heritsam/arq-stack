@@ -77,8 +77,6 @@ The default answer is `/arq-mode`, which runs most of the others when its steps 
 | Catch up like `/ketchup`, in a short subtitled video of slides, with the waiting calls as text under it | [`/ketchup-video`](../ketchup-video/SKILL.md) |
 | Know what a small diff could break outside itself | [`/blast-radius`](../blast-radius/SKILL.md) |
 | Settle types and module shape before code that crosses a function boundary | [`/architect`](../architect/SKILL.md) |
-| Get several attempts at one brief, merged into the best one | [`/arena`](../arena/SKILL.md) |
-| Run parallel checks over slices, or race workers, as parallel subagents | [`/swarm`](../swarm/SKILL.md) |
 | Have different models review a diff and try to break it | [`/interrogate`](../interrogate/SKILL.md) |
 | Fix a bug test-first when a cheap local test exists | [`/tdd`](../tdd/SKILL.md) |
 | Apply TypeScript rules to `.ts` or `.tsx` work | [`/typescript-best-practices`](../typescript-best-practices/SKILL.md) |
@@ -92,11 +90,9 @@ The default answer is `/arq-mode`, which runs most of the others when its steps 
 | Bring a formal verification back in line after the code it covers changed, and learn whether a failure is drift or a bug | [`/maintain-formal-verification-skill`](../maintain-formal-verification-skill/SKILL.md) |
 | Show a PM or designer what the user sees as a chart checked by a TLA+ model, with the shortest path to each state that breaks a rule | [`/statechart`](../statechart/SKILL.md) |
 | Vet a performance number before reporting or acting on it | [`/benchmark-checklist`](../benchmark-checklist/SKILL.md) |
-| Run a large or cross-cutting change, or one to review after stepping away | [`/figure-it-out`](../figure-it-out/SKILL.md) |
 | Keep a decision log during a run, and review it afterward | [`/show-me-your-work`](../show-me-your-work/SKILL.md) |
 | Pick a model for each role and a reasoning budget | [`/setup-arq-stack`](../setup-arq-stack/SKILL.md) |
 | Turn their own working habits into a personal mode skill | [`/automate-me`](../automate-me/SKILL.md) |
-| Turn what a finished task taught into skill edits | [`/reflect`](../reflect/SKILL.md) |
 | Stop agents from repeating the same mistakes in this repo | [`/correct`](../correct/SKILL.md) |
 | Find their way around pstack | `/arq-help` |
 
@@ -105,10 +101,8 @@ If a skill directory next to this one is missing from the table, read its frontm
 Close calls:
 
 - `/how` explains what the code does. `/why` explains the reasons. `/teach` runs one or both and explains the result plainly.
-- `/arena` gives every worker the same brief and merges the best parts. `/swarm` splits work into slices or a race and returns one report.
 - `/interrogate` reviews the diff. `/blast-radius` looks for breakage outside the diff and proves the one fact that makes the change safe.
 - `/recall` rebuilds context across recent chats. `/ketchup` covers only this chat since the user's last message. Resuming one specific chat or branch is the Session pickup playbook.
-- `/figure-it-out` designs one rigorous run. The Autonomous run playbook drives one task to a finish condition.
 
 Not in arq-stack:
 
@@ -150,7 +144,6 @@ For a run that drifts, [`references/prompting.md`](references/prompting.md) has 
 ## Make pstack my own
 
 - [`/automate-me`](../automate-me/SKILL.md) drafts a personal mode skill from the user's own history, to use alongside `/arq-mode`.
-- [`/reflect`](../reflect/SKILL.md) after a session turns its lessons into skill edits the user approves.
 - `/arq-mode write a skill for <workflow>` runs the authoring playbook. The eval playbook tests a skill change blind.
 - Fix a misbehaving skill in its own PR, not inside the feature work where it went wrong.
 

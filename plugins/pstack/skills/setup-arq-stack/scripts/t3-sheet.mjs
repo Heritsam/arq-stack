@@ -70,7 +70,7 @@ export function parseSheet(markdown) {
 // Problems with a parsed sheet, for the role vocabulary of models.json (each
 // role with its `tier`, and the `alias` a released sheet may still use), its
 // tier defaults, and an `orchestrator_capabilities` catalog. A role whose tier
-// default is a list, a panel or the cross-judge pool, takes a list that spans
+// default is a list, a panel, takes a list that spans
 // two model families. A role with no line runs on its tier's default, so that
 // default must dispatch here too.
 // A `retired` role's line is one a released sheet still carries and no skill

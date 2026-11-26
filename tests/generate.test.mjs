@@ -70,7 +70,7 @@ describe("regions", () => {
   test("every skill a role names gets that role's tier default stamped in its Models section", () => {
     const marked = {
       ...models,
-      tiers: { default: "x/marker-default", fast: "x/marker-fast", panel: ["a/claude-p", "b/gpt-p"], judges: ["c/claude-j", "d/gemini-j"] },
+      tiers: { default: "x/marker-default", fast: "x/marker-fast", panel: ["a/claude-p", "b/gpt-p"] },
     };
     for (const skill of new Set(models.roles.map((r) => r.skill))) {
       const file = `plugins/pstack/skills/${skill}/SKILL.md`;
@@ -80,7 +80,6 @@ describe("regions", () => {
           default: "`x/marker-default`",
           fast: "`x/marker-fast`",
           panel: "`a/claude-p`, `b/gpt-p`",
-          judges: "`c/claude-j`, `d/gemini-j`",
         }[role.tier];
         expect(stamped).toContain(`- ${role.role}: ${expected}`);
       }
@@ -88,12 +87,12 @@ describe("regions", () => {
   });
 
   test("applyRegions stamps in place and is idempotent", () => {
-    const file = "plugins/pstack/skills/swarm/SKILL.md";
-    const text = "# swarm\n\n## Models\n\nstale\n\n## After\nkeep\n";
+    const file = "plugins/pstack/skills/interrogate/SKILL.md";
+    const text = "# interrogate\n\n## Models\n\nstale\n\n## After\nkeep\n";
     const once = applyRegions(file, text, models, { strict: true });
     expect(once).not.toContain("stale");
     expect(once).toContain("## After\nkeep\n");
-    expect(once).toContain("- swarm workers: `claudeAgent/claude-opus-5-5 effort=high`");
+    expect(once).toContain("- interrogate reviewers: `claudeAgent/claude-opus-5-5 effort=high`");
     expect(applyRegions(file, once, models, { strict: true })).toBe(once);
   });
 
@@ -264,12 +263,12 @@ describe("deriveT3", () => {
   });
 
   test("appends and stamps a Models section when upstream has none, naming the sheet and the entry grammar", () => {
-    const out = deriveT3("plugins/pstack/skills/swarm/SKILL.md", front(""), models);
+    const out = deriveT3("plugins/pstack/skills/interrogate/SKILL.md", front(""), models);
     expect(out).toContain("body\n\n## Models\n\nRole defaults on T3, stamped from `plugins/pstack/models.json`.");
     expect(out).toContain("`arq-stack-models.md`");
     expect(out).toContain("It splits at its first `/`");
-    expect(out.endsWith("- swarm workers: `claudeAgent/claude-opus-5-5 effort=high`\n")).toBe(true);
-    expect(deriveT3("plugins/pstack/skills/swarm/SKILL.md", out, models)).toBe(out);
+    expect(out.endsWith("- interrogate reviewers: `claudeAgent/claude-opus-5-5 effort=high`, `antigravity/gemini-4-neon thought_level=xhigh`\n")).toBe(true);
+    expect(deriveT3("plugins/pstack/skills/interrogate/SKILL.md", out, models)).toBe(out);
   });
 
   test("names the alias a released sheet may still use", () => {
@@ -367,13 +366,13 @@ describe("plan, changes, apply", () => {
 
   test("a hand edit to a stamped Models line or to the sheet block is restored", () => {
     const root = repoCopy();
-    const swarm = "plugins/pstack/skills/swarm/SKILL.md";
+    const review = "plugins/pstack/skills/interrogate/SKILL.md";
     const setup = "plugins/pstack/skills/setup-arq-stack/SKILL.md";
     const text = (rel) => readFileSync(join(root, rel), "utf8");
-    writeFileSync(join(root, swarm), text(swarm).replace(/^- swarm workers: .*$/m, "- swarm workers: stale"));
+    writeFileSync(join(root, review), text(review).replace(/^- interrogate reviewers: .*$/m, "- interrogate reviewers: stale"));
     writeFileSync(join(root, setup), text(setup).replace(/^bug-fix: .*$/m, "bug-fix: stale"));
     const { files } = plan(root);
-    for (const rel of [swarm, setup]) expect(files[rel]).toBe(readFileSync(join(repoRoot, rel), "utf8"));
+    for (const rel of [review, setup]) expect(files[rel]).toBe(readFileSync(join(repoRoot, rel), "utf8"));
   });
 
   test("apply rewrites only the files whose bytes differ", () => {

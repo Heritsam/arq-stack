@@ -2,12 +2,12 @@
 
 Lauren Tan's [pstack](https://github.com/cursor/plugins/tree/main/pstack) for T3 Code: rigorous agent workflows whose subagents, panels, schedules, and PR watches dispatch through T3's orchestration, so a panel can mix Claude, GPT, and Grok.
 
-Tell `arq-mode` your goal and it runs the workflow that fits: reproduce and root-cause a bug, sketch a design with `architect`, race candidates in `arena`, review a diff with `interrogate`, cut prose with `unslop`. It keeps code concise, simple, and verified, and it reports what it checked.
+Tell `arq-mode` your goal and it runs the workflow that fits: reproduce and root-cause a bug, sketch a design with `architect`, review a diff with `interrogate`, cut prose with `unslop`. It keeps code concise, simple, and verified, and it reports what it checked.
 
 ## What it contains
 
 - Skills: upstream's skill text, with its Cursor mechanics rewritten for T3. Each appears as `/arq-stack:<name>`.
-- Agents: `arq-agent`, `comment-sicko`, and the two thermo-nuclear reviewers, each read by path in a `delegate_task` brief.
+- Agents: `arq-agent` and `comment-sicko`, each read by path in a `delegate_task` brief.
 - A session-start hook that tells each chat when to enter `arq-mode`, unless your model sheet turns it off.
 - Local scripts for watching pull requests, checking plans, and auditing worktrees.
 
@@ -22,4 +22,4 @@ arq-stack has no server or telemetry. Anything its skills ask your agent to read
 
 ## License
 
-MIT. Original pstack © 2026 Lauren Tan; imported cursor-team-kit and thermos skills © 2026 Cursor; T3 modifications © 2026 Christian Bager Bach Houmann. See [NOTICE.md](https://github.com/Heritsam/arq-stack/blob/main/NOTICE.md).
+MIT. Original pstack © 2026 Lauren Tan; imported cursor-team-kit skills © 2026 Cursor; T3 modifications © 2026 Christian Bager Bach Houmann. See [NOTICE.md](https://github.com/Heritsam/arq-stack/blob/main/NOTICE.md).

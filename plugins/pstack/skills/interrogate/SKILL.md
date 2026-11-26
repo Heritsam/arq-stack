@@ -14,15 +14,17 @@ The scope is what the user names. Otherwise it is the branch diff from its merge
 
 ## Fan out
 
-Run Phase A steps 3 and 4 and Phase B of the **arena** skill, with four changes. Read the `interrogate reviewers` line in place of `arena runners`. Copy the scope's uncommitted changes into each worktree. Spawn each adversary as a `delegate_task` child with `role: "review"` and no persona brief. In place of the arena task and rationale, give each adversary the scope, the intent, and this brief:
+Take the reviewers from the `interrogate reviewers` line in the model sheet, by default the entries in [Models](#models). Run at most two, and fewer when the task has already used part of arq-mode's two-subagent limit. Two reviewers span two model families. A single reviewer is from a family other than yours. A model's family is the first segment of its ID's last `/` part, such as `claude` or `gemini`, except that Fable (`claude-fable-*`) is its own family. An `auto` or `inherit-parent` entry omits `target`. If `delegate_task` rejects an entry, use another target of the same family from `orchestrator_capabilities` or drop that seat, and say so.
+
+Spawn each adversary as a `delegate_task` child with `mode: "async"`, `role: "review"`, no persona brief, and its own worktree, per arq-mode's Dispatch on T3. Copy the scope's uncommitted changes into each worktree. Open each brief as arq-mode says, then give the scope, the intent, and this:
 
 > Break this change. Prove each finding with a run against the real code, such as a failing test, a repro script, or command output that shows the wrong behavior. For a design or plan, run a prototype or probe the current tree. Keep repros in your own worktree. Report each finding with a title, the exact command, the output it printed, and the output the intent requires. Leave out anything you did not run. That covers style, naming, structure, and risks that need a future change to matter. No findings is a valid result.
 
 ## Verify
 
-Verify each finding per arena Phase F by rerunning its command. Keep a finding when the output shows the failure and the failure breaks the intent. Drop the rest. Merge findings that share a root cause.
+Verify each finding by rerunning its command. Keep a finding when the output shows the failure and the failure breaks the intent. Drop the rest. Merge findings that share a root cause.
 
-Skip arena Phases C, D, and E. Adversaries find different failures, so the verdict keeps every verified finding, not one adversary's list.
+Adversaries find different failures, so the verdict keeps every verified finding, not one adversary's list.
 
 ## Output
 
@@ -34,4 +36,4 @@ Skip arena Phases C, D, and E. Adversaries find different failures, so the verdi
 
 Role defaults on T3, stamped from `plugins/pstack/models.json`. A role line in the model sheet overrides each one. The sheet is `~/.config/arq-stack/models.md` (`$XDG_CONFIG_HOME/arq-stack/models.md` when that is set), one per machine, and `/setup-arq-stack` writes it. When it is missing, read `arq-stack-models.md` in the host's config directory (`$CLAUDE_CONFIG_DIR` or `~/.claude` on Claude Code, `$CODEX_HOME` or `~/.codex` on Codex). An entry is `<providerInstanceId>/<modelId>` plus `<optionId>=<value>` pairs, and it maps onto `delegate_task`'s `target`, with the provider instance as `providerInstanceId`, the model as `model`, and the pairs as `options`. It splits at its first `/`, so a model ID with its own `/`, such as OpenCode's `<provider>/<model>`, is written whole after it. Option IDs differ per provider, so take them from `orchestrator_capabilities`. `inherit-parent` or `auto` omits `target`.
 
-- interrogate reviewers: `claudeAgent/claude-fable-5-2 effort=high`, `claudeAgent/claude-opus-5-5 effort=high`, `antigravity/gemini-4-neon thought_level=xhigh`
+- interrogate reviewers: `claudeAgent/claude-opus-5-5 effort=high`, `antigravity/gemini-4-neon thought_level=xhigh`

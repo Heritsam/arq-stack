@@ -98,7 +98,7 @@ describe("checkSheet against a catalog", () => {
           "bug-fix: claudeCode/claude-opus-5-5",
           "perf-issue: cursor/grok-4.7",
           "judgment and prose: grok/grok-9",
-          "swarm workers: claudeAgent/claude-opus-5-5 reasoningEffort=high",
+          "routine work: claudeAgent/claude-opus-5-5 reasoningEffort=high",
           "feature, refactoring: codex/gpt-6.1-sol reasoningEffort=extreme",
           "hillclimb: claudeAgent/claude-opus-5-5 fastMode=yes",
         ].join("\n"),
@@ -107,7 +107,7 @@ describe("checkSheet against a catalog", () => {
       'bug-fix: claudeCode/claude-opus-5-5: no provider instance "claudeCode" in this T3',
       'perf-issue: cursor/grok-4.7: "cursor" cannot run child tasks (Provider is not authenticated.)',
       'judgment and prose: grok/grok-9: "grok" does not list model "grok-9"',
-      'swarm workers: claudeAgent/claude-opus-5-5: no option "reasoningEffort" (has effort, fastMode)',
+      'routine work: claudeAgent/claude-opus-5-5: no option "reasoningEffort" (has effort, fastMode)',
       "feature, refactoring: codex/gpt-6.1-sol: reasoningEffort=extreme is not one of low, medium, high, xhigh, max, ultra",
       "hillclimb: claudeAgent/claude-opus-5-5: fastMode=yes is not one of true, false",
     ]);
@@ -204,18 +204,10 @@ describe("checkSheet against a catalog", () => {
     expect(check("bug-fix: claudeAgent/claude-fable-5-1, grok/grok-4.7")).toEqual(["bug-fix: takes one entry, not a list"]);
   });
 
-  test("the cross-judge pool takes a list of two families, as a panel does", () => {
-    const pool = "arena cross-judge pool";
-    expect(check(`${pool}: claudeAgent/claude-opus-5-5 effort=high, antigravity/gemini-4-carbon thought_level=high`)).toEqual([]);
-    expect(check(`${pool}: claudeAgent/claude-opus-5-5 effort=high`)).toEqual([
-      `${pool}: a panel needs at least two model families among its targets (inherit-parent does not count), got claude`,
-    ]);
-  });
-
   test("a role set twice fails rather than letting the last line win", () => {
-    expect(check("swarm workers: grok/grok-4.7 effort=high\nswarm workers: grok/grok-4.7")).toEqual([
-      'swarm workers: grok/grok-4.7: no option "effort" (has reasoningEffort)',
-      '"swarm workers" appears twice; only one line may set it',
+    expect(check("routine work: grok/grok-4.7 effort=high\nroutine work: grok/grok-4.7")).toEqual([
+      'routine work: grok/grok-4.7: no option "effort" (has reasoningEffort)',
+      '"routine work" appears twice; only one line may set it',
     ]);
   });
 
@@ -279,9 +271,7 @@ describe("checkSheet against a catalog", () => {
       "architect runners: claudeAgent/claude-fable-5-2 effort=high, claudeAgent/claude-opus-5-5 effort=high fastMode=true, antigravity/gemini-4-carbon thinking_level=high",
       "session hook: on",
     ];
-    expect(check(released.join("\n"))).toEqual([
-      'arena cross-judge pool: antigravity/gemini-4-carbon: no option "thinking_level" (has thought_level)',
-    ]);
+    expect(check(released.join("\n"))).toEqual([]);
     expect(check("strongest judgment: provider-gone/model-gone\narchitect runners: provider-gone/model-gone")).toEqual([]);
   });
 

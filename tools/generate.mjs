@@ -208,10 +208,9 @@ export function validatePluginLayout(pluginRoot) {
   }
 }
 
-const TIERS = ["default", "fast", "panel", "judges"];
-// The tiers whose default is a list: the review and design panels, and the
-// arena cross-judge pool, which tries one judge from the list in order.
-const LIST_TIERS = ["panel", "judges"];
+const TIERS = ["default", "fast", "panel"];
+// The tiers whose default is a list: the review panel.
+const LIST_TIERS = ["panel"];
 
 // Check models.json's shape, throwing with the offending tier, role, or entry
 // named. `skillExists(skill)` reports whether a role's skill directory carries
