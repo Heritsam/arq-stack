@@ -2,6 +2,10 @@
 
 This file is the release changelog, with one `## <version> - <title>` entry per release, newest first. Entries below 3.0.0 are t3-pstack's history and use its names.
 
+## 3.3.1 - Risky changes always get a reviewer
+
+A change that touches money, auth, data, migrations, or concurrency now gets one reviewer however small it is. In 3.3.0 a small money fix ran with none. Rerun the installer.
+
 ## 3.3.0 - Auto-routing is off by default
 
 The session-start hook now stays silent unless the model sheet says `session hook: on`. `/setup-arq-stack` writes it off unless you say yes. Rerun the installer.
